@@ -1204,12 +1204,33 @@
         }
 
         function updateQuarter(id, change) {
-            const q = state.quarters.find(x => x.id === id);
-            const next = q.revCount + change;
+            const q        = state.quarters.find(x => x.id === id);
+            const prev     = q.revCount;
+            const next     = prev + change;
             if (next < 0 || next > 11) return;
+
+            const todayStr = getTodayStr();
+            const wasToday = q.lastRevised && new Date(q.lastRevised).toISOString().split('T')[0] === todayStr;
+
             q.revCount = next;
-            q.lastRevised = next === 0 ? 0 : Date.now();
-            if (next > 0) recordRevisionToday(); // FIX #2
+
+            if (change > 0) {
+                // Incrementing: stamp now, record streak
+                q.lastRevised = Date.now();
+                recordRevisionToday();
+            } else {
+                // Decrementing
+                if (next === 0) {
+                    q.lastRevised = 0; // fully unset
+                } else if (wasToday) {
+                    // Was stamped today — roll back to yesterday noon so dots un-fill
+                    const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
+                    yesterday.setHours(12, 0, 0, 0);
+                    q.lastRevised = yesterday.getTime();
+                }
+                // if lastRevised was from a previous day, leave it untouched
+            }
+
             saveState();
             openHizbModal(q.hizb);
             renderApp();
