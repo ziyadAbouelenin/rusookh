@@ -282,7 +282,11 @@
         const formatHijri = (ts) => {
             if(!ts) return '';
             try { 
-                return `<bdi>${new Intl.DateTimeFormat(state.lang === 'ar' ? 'ar-SA' : 'en-GB', {calendar: 'islamic-umalqura', day:'numeric', month:'short'}).format(new Date(ts))}</bdi>`; 
+                // Using standard 'islamic' and en-US to prevent Edge mobile math bugs
+                let dateStr = new Intl.DateTimeFormat(state.lang === 'ar' ? 'ar-SA' : 'en-US', {calendar: 'islamic', day:'numeric', month:'short'}).format(new Date(ts));
+                // Safety net: If browser still glitches, hide it rather than showing BC
+                if(dateStr.includes('BC') || dateStr.includes('ق.م')) return '';
+                return `<bdi>${dateStr}</bdi>`; 
             } catch(e) { return ''; }
         };
 
@@ -357,8 +361,14 @@
         function renderDateBar() {
             const d = new Date();
             const grego = new Intl.DateTimeFormat(state.lang === 'ar' ? 'ar-EG' : 'en-GB', {weekday:'long', day:'numeric', month:'long'}).format(d);
-            const hijri = new Intl.DateTimeFormat(state.lang === 'ar' ? 'ar-SA' : 'en-GB', {calendar: 'islamic-umalqura', day:'numeric', month:'long', year:'numeric'}).format(d);
-            document.getElementById('dateBar').innerHTML = `<bdi>${grego}</bdi> &nbsp;|&nbsp; <bdi>${hijri}</bdi>`;
+            
+            let hijriStr = '';
+            try {
+                hijriStr = new Intl.DateTimeFormat(state.lang === 'ar' ? 'ar-SA' : 'en-US', {calendar: 'islamic', day:'numeric', month:'long', year:'numeric'}).format(d);
+                if(hijriStr.includes('BC') || hijriStr.includes('ق.م')) hijriStr = '';
+            } catch(e) {}
+
+            document.getElementById('dateBar').innerHTML = `<bdi>${grego}</bdi> ${hijriStr ? `&nbsp;|&nbsp; <bdi>${hijriStr}</bdi>` : ''}`;
         }
 
         function renderApp() {
