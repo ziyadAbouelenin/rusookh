@@ -270,7 +270,6 @@
         function updateName(val) { state.userName = val; saveState(); }
         function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
         
-        // UPGRADED SEQUENTIAL LOGIC
         function calculateDailyPlan() {
             const todayStr = getTodayStr();
             let memHizbs = [...new Set(state.quarters.filter(q => q.revCount > 0).map(q => q.hizb))].sort((a,b) => a - b);
@@ -286,32 +285,22 @@
                 let newSeq = [];
                 let newDone = [];
 
-                // 1. Keep unfinished items that are still in the pool
-                oldSeq.forEach((h, i) => { 
-                    if (!oldDone[i] && seqPool.includes(h)) { 
-                        newSeq.push(h); 
-                        newDone.push(false); 
-                    } 
-                });
+                oldSeq.forEach((h, i) => { if (!oldDone[i] && seqPool.includes(h)) { newSeq.push(h); newDone.push(false); } });
 
-                // 2. Fill the rest sequentially
-                let lastHizb = Math.max(0, ...oldSeq);
+                let lastHizb = Math.max(...oldSeq, 0);
                 let maxCanAdd = Math.min(sCount, seqPool.length);
-                let safetyCounter = 0; // Prevent infinite loops
+                let safetyCounter = 0; 
 
                 while(newSeq.length < maxCanAdd && safetyCounter < 100) {
                     safetyCounter++;
-                    // Find next strictly greater hizb NOT already in our new list
                     let nextCandidates = seqPool.filter(h => h > lastHizb && !newSeq.includes(h));
-                    
                     if (nextCandidates.length > 0) {
                         let next = nextCandidates[0];
                         newSeq.push(next);
                         newDone.push(false);
                         lastHizb = next;
                     } else { 
-                        lastHizb = 0; // Wrap around to the beginning
-                        // If everything in pool is already in newSeq, break
+                        lastHizb = 0; 
                         if (seqPool.filter(h => !newSeq.includes(h)).length === 0) break;
                     }
                 }
@@ -419,9 +408,11 @@
                 
                 let latestDate = Math.max(...qs.map(q => q.lastRevised || 0));
 
+                // ADDED HIZB LABEL ABOVE NUMBER
                 html += `<div class="card ${cardClass}" onclick="${isBulkMode ? `toggleHizbSelection(${i})` : `openHizbModal(${i})`}">
+                    <span style="font-size:11px; color:gray; margin-bottom:-2px;">${t('hizb')}</span>
                     <span class="hizb-num">${toArabicNum(i)}</span>
-                    ${latestDate > 0 ? `<span style="font-size:10px; color:var(--secondary); font-weight:bold; margin-top:4px;">${formatHijri(latestDate)}</span><span style="font-size:10px; color:gray; margin-top:2px;">${formatDate(latestDate)}</span>` : `<span style="font-size:10px; color:gray; margin-top:4px;">${t('never')}</span>`}
+                    ${latestDate > 0 ? `<span style="font-size:10px; color:var(--secondary); font-weight:bold; margin-top:2px;">${formatHijri(latestDate)}</span><span style="font-size:10px; color:gray; margin-top:2px;">${formatDate(latestDate)}</span>` : `<span style="font-size:10px; color:gray; margin-top:4px;">${t('never')}</span>`}
                     ${overdue ? `<span class="overdue-label">${t('overdueLabel')}</span>` : ''}
                 </div>`;
             }
@@ -447,6 +438,7 @@
                 let isThisPlaying = (playingHizb === l.hizb && isPlaying);
                 html += `<div class="card ${l.listened ? 'listened' : ''}" style="height:120px; padding:0; overflow:hidden;">
                     <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; width:100%; cursor:pointer;" onclick="toggleListening(${l.hizb})">
+                        <span style="font-size:11px; color:gray; margin-bottom:-2px;">${t('hizb')}</span>
                         <span class="hizb-num">${toArabicNum(l.hizb)}</span>
                         ${l.listened ? `<span style="font-size:11px; color:var(--secondary); font-weight:bold; margin-top:4px;">${t('listenedText')} ✓</span>` : ''}
                     </div>
