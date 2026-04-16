@@ -683,8 +683,10 @@
             const recentHizbs = memHizbs.slice(-rCount);
             const seqPool    = memHizbs.filter(h => !recentHizbs.includes(h));
 
-            const needsUpdate = state.plan.date !== todayStr
-                || (state.plan.seqHizbs.length < sCount && seqPool.length > 0)
+            const isNewDay    = state.plan.date !== todayStr;
+            const activePlan  = state.plan.seqHizbs.filter((h, i) => !state.plan.seqDone[i]);
+            const needsUpdate = isNewDay
+                || (activePlan.length < sCount && seqPool.filter(h => !state.plan.seqHizbs.includes(h)).length > 0)
                 || (state.plan.seqHizbs.length > sCount);
 
             if (needsUpdate) {
@@ -693,8 +695,7 @@
                 let newSeq = [], newDone = [];
 
                 oldSeq.forEach((h, i) => {
-                    const isNewDay = state.plan.date !== todayStr;
-                    const keep     = isNewDay ? !oldDone[i] : true;
+                    const keep = isNewDay ? !oldDone[i] : true;
                     if (keep && seqPool.includes(h) && newSeq.length < sCount) {
                         newSeq.push(h);
                         newDone.push(isNewDay ? false : oldDone[i]);
@@ -916,6 +917,7 @@
            RENDER: PLAN TAB
         ════════════════════════════════════════════ */
         function renderPlan(container) {
+            const todayStr = getTodayStr();
             const streak = calculateStreak();
             let html = `
             <div class="streak-banner">
@@ -935,13 +937,29 @@
                     html += `<p style="color:var(--text-muted);font-size:14px;">-</p>`;
                 }
                 state.plan.recentHizbs.forEach(h => {
-                    const qs         = state.quarters.filter(q => q.hizb === h);
-                    const latestDate = Math.max(...qs.map(q => q.lastRevised || 0));
-                    html += `<div class="plan-item" data-action="openHizb" data-hizb="${h}">
-                        <span class="hizb-num">${t('hizb')} ${toArabicNum(h)}</span>
+                    const qs             = state.quarters.filter(q => q.hizb === h);
+                    const latestDate     = Math.max(...qs.map(q => q.lastRevised || 0));
+                    const doneCount      = qs.filter(q => q.lastRevised && new Date(q.lastRevised).toISOString().split('T')[0] === todayStr).length;
+                    const allDoneToday   = doneCount === 4;
+                    html += `<div class="plan-item" data-action="openHizb" data-hizb="${h}"
+                        style="cursor:pointer;transition:background .2s,border-color .2s;${allDoneToday ? 'background:#ECFDF5;border-color:rgba(5,150,105,0.4);' : ''}">
+                        <div>
+                            <span class="hizb-num" style="${allDoneToday ? 'color:var(--primary);' : ''}">${t('hizb')} ${toArabicNum(h)}</span>
+                            <div style="display:flex;gap:6px;margin-top:6px;">
+                                ${qs.map(q => {
+                                    const doneToday = q.lastRevised && new Date(q.lastRevised).toISOString().split('T')[0] === todayStr;
+                                    return `<span style="width:12px;height:12px;border-radius:50%;border:1.5px solid ${doneToday ? 'var(--primary)' : 'var(--border)'};background:${doneToday ? 'var(--primary)' : 'transparent'};display:inline-block;transition:background .2s;"></span>`;
+                                }).join('')}
+                            </div>
+                        </div>
                         <div style="text-align:left;">
-                            <span style="color:var(--secondary);font-size:11px;font-weight:700;display:block;">${formatHijri(latestDate)}</span>
-                            <span style="color:var(--text-muted);font-size:11px;">${formatDate(latestDate)}</span>
+                            ${allDoneToday
+                                ? `<span style="color:var(--primary);font-size:13px;font-weight:700;">✓ ${state.lang === 'en' ? 'Done' : 'تمت المراجعة'}</span>`
+                                : `<div style="text-align:center;">
+                                       <span style="color:var(--text-muted);font-size:11px;display:block;">${doneCount}/4</span>
+                                       <span style="color:var(--text-muted);font-size:10px;">${state.lang === 'en' ? 'tap to revise' : 'اضغط للمراجعة'}</span>
+                                   </div>`
+                            }
                         </div>
                     </div>`;
                 });
@@ -954,9 +972,12 @@
                 }
                 state.plan.seqHizbs.forEach((h, idx) => {
                     const isDone = state.plan.seqDone[idx];
-                    html += `<div class="plan-item ${isDone ? 'done' : ''}">
-                        <span class="hizb-num">${t('hizb')} ${toArabicNum(h)}</span>
-                        <button class="${isDone ? 'btn-outline' : 'btn-primary'}" data-action="seqDone" data-idx="${idx}" ${isDone ? 'disabled' : ''}>${t('done')}</button>
+                    html += `<div class="plan-item" data-action="seqDone" data-idx="${idx}" style="cursor:pointer;transition:background .2s,border-color .2s;${isDone ? 'background:#ECFDF5;border-color:rgba(5,150,105,0.4);' : ''}">
+                        <span class="hizb-num" style="${isDone ? 'color:var(--primary);' : ''}">${t('hizb')} ${toArabicNum(h)}</span>
+                        ${isDone
+                            ? `<span style="color:var(--primary);font-size:13px;font-weight:700;">✓ ${state.lang === 'en' ? 'Done' : 'تمت المراجعة'}</span>`
+                            : `<span style="color:var(--text-muted);font-size:20px;">○</span>`
+                        }
                     </div>`;
                 });
             }
@@ -1100,8 +1121,8 @@
            ACTIONS
         ════════════════════════════════════════════ */
         function markSeqDone(index) {
-            state.plan.seqDone[index] = true;
-            recordRevisionToday(); // FIX #2: record a real revision action
+            state.plan.seqDone[index] = !state.plan.seqDone[index];
+            if (state.plan.seqDone[index]) recordRevisionToday();
             saveState();
             renderApp();
         }
