@@ -101,7 +101,7 @@
         <div class="tab active" onclick="switchTab('plan')" id="tabPlan">خطة اليوم</div>
         <div class="tab" onclick="switchTab('overdue')" id="tabOverdue">متأخرة</div>
         <div class="tab" onclick="switchTab('tilawah')" id="tabTilawah">ورد القراءة</div>
-        <div class="tab" onclick="switchTab('hifz')" id="tabHifz">الحفظ الجديد</div>
+        <div class="tab" onclick="switchTab('hifz')" id="tabHifz">تتبع الحفظ</div>
         <div class="tab" onclick="switchTab('listening')" id="tabListening">ورد الاستماع</div>
     </div>
 
@@ -201,7 +201,7 @@
 
         const dict = {
             ar: { 
-                plan: "خطة اليوم", overdue: "متأخرة", tilawah: "ورد القراءة", hifz: "الحفظ الجديد", listening: "ورد الاستماع", 
+                plan: "خطة اليوم", overdue: "متأخرة", tilawah: "ورد القراءة", hifz: "تتبع الحفظ", listening: "ورد الاستماع", 
                 export: "تصدير", import: "استيراد", langToggle: "EN", hizb: "الحزب", juz: "الجزء", read: "تمت القراءة",
                 listenedText: "تم الاستماع",
                 recent: "المراجعة القريبة", seq: "المراجعة البعيدة", done: "إتمام", 
@@ -224,12 +224,12 @@
                     <h3>2. الأحزاب المتأخرة</h3>
                     <p>أي حزب لم تراجعه منذ مدة طويلة (محددة حالياً بـ {DAYS} يوماً) سيظهر هنا باللون الأحمر لتتداركه. يمكنك تغيير هذه المدة من <b>الإعدادات ⚙️</b>.</p>
                     <h3>3. التعديل السريع والجماعي</h3>
-                    <p>في قسم <b>الحفظ الجديد</b>، اضغط على زر <b>تعديل ✏️</b> لتحديد عدة أحزاب وتعيين تاريخ حفظها دفعة واحدة. مفيد جداً عند بدء استخدام التطبيق!</p>
+                    <p>في قسم <b>تتبع الحفظ</b>، اضغط على زر <b>تعديل ✏️</b> لتحديد عدة أحزاب وتعيين تاريخ حفظها دفعة واحدة. مفيد جداً عند بدء استخدام التطبيق!</p>
                 `,
                 tutClose: "حسناً، فهمت"
             },
             en: { 
-                plan: "Plan", overdue: "Overdue", tilawah: "Daily Read", hifz: "New Hifz", listening: "Daily Listen", 
+                plan: "Plan", overdue: "Overdue", tilawah: "Daily Read", hifz: "Hifz Tracker", listening: "Daily Listen", 
                 export: "Export", import: "Import", langToggle: "AR", hizb: "Hizb", juz: "Juz", read: "Read",
                 listenedText: "Listened",
                 recent: "Near Revision", seq: "Far Revision", done: "Done", 
@@ -252,7 +252,7 @@
                     <h3>2. Overdue Warning</h3>
                     <p>Any Hizb you haven't revised in a while (currently {DAYS} days) will show up here in red. You can change this threshold in the <b>Settings ⚙️</b>.</p>
                     <h3>3. Bulk Edit</h3>
-                    <p>In the <b>New Hifz</b> tab, click <b>Edit ✏️</b> to select multiple Hizbs and mark them as memorized all at once.</p>
+                    <p>In the <b>Hifz Tracker</b> tab, click <b>Edit ✏️</b> to select multiple Hizbs and mark them as memorized all at once.</p>
                 `,
                 tutClose: "Got it!"
             }
@@ -270,6 +270,7 @@
         function updateName(val) { state.userName = val; saveState(); }
         function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
         
+        // UPGRADED SEQUENTIAL LOGIC
         function calculateDailyPlan() {
             const todayStr = getTodayStr();
             let memHizbs = [...new Set(state.quarters.filter(q => q.revCount > 0).map(q => q.hizb))].sort((a,b) => a - b);
@@ -279,23 +280,42 @@
             let recentHizbs = memHizbs.slice(-rCount);
             let seqPool = memHizbs.filter(h => !recentHizbs.includes(h)); 
 
-            if (state.plan.date !== todayStr) {
+            if (state.plan.date !== todayStr || (state.plan.seqHizbs.length === 0 && seqPool.length > 0)) {
                 let oldSeq = state.plan.seqHizbs || [];
                 let oldDone = state.plan.seqDone || [];
                 let newSeq = [];
                 let newDone = [];
 
-                oldSeq.forEach((h, i) => { if (!oldDone[i] && seqPool.includes(h)) { newSeq.push(h); newDone.push(false); } });
+                // 1. Keep unfinished items that are still in the pool
+                oldSeq.forEach((h, i) => { 
+                    if (!oldDone[i] && seqPool.includes(h)) { 
+                        newSeq.push(h); 
+                        newDone.push(false); 
+                    } 
+                });
 
-                let lastHizb = Math.max(...oldSeq, 0);
-                while(newSeq.length < sCount && seqPool.length > 0) {
-                    let nextCandidates = seqPool.filter(h => h > lastHizb);
+                // 2. Fill the rest sequentially
+                let lastHizb = Math.max(0, ...oldSeq);
+                let maxCanAdd = Math.min(sCount, seqPool.length);
+                let safetyCounter = 0; // Prevent infinite loops
+
+                while(newSeq.length < maxCanAdd && safetyCounter < 100) {
+                    safetyCounter++;
+                    // Find next strictly greater hizb NOT already in our new list
+                    let nextCandidates = seqPool.filter(h => h > lastHizb && !newSeq.includes(h));
+                    
                     if (nextCandidates.length > 0) {
                         let next = nextCandidates[0];
-                        if(!newSeq.includes(next)) { newSeq.push(next); newDone.push(false); }
+                        newSeq.push(next);
+                        newDone.push(false);
                         lastHizb = next;
-                    } else { lastHizb = 0; }
+                    } else { 
+                        lastHizb = 0; // Wrap around to the beginning
+                        // If everything in pool is already in newSeq, break
+                        if (seqPool.filter(h => !newSeq.includes(h)).length === 0) break;
+                    }
                 }
+                
                 state.plan = { date: todayStr, seqHizbs: newSeq, seqDone: newDone, recentHizbs: recentHizbs };
                 saveState();
             } else {
