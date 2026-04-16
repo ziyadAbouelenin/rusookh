@@ -436,19 +436,45 @@
                 tutTitle:'مرحباً بك في رسوخ (الحصون الخمسة)',
                 tutBody:`
                     <h3>مقدمة عن تقسيم القرآن:</h3>
-                    <p>القرآن الكريم مقسم إلى <b>30 جزءاً</b>، وكل جزء يتكون من <b>حزبين</b> (المجموع 60 حزباً). وكل حزب مقسم إلى <b>4 أرباع</b>. هذا التطبيق يعتمد على التتبع الدقيق لكل حزب وأرباعه لتسهيل المراجعة.</p>
-                    <p>رسوخ هو رفيقك لتتبع حفظ ومراجعة القرآن الكريم بذكاء بناءً على منهجية الحصون الخمسة. إليك كيف يعمل:</p>
+                    <p>القرآن الكريم مقسم إلى <b>30 جزءاً</b>، وكل جزء يتكون من <b>حزبين</b> (المجموع 60 حزباً). وكل حزب مقسم إلى <b>4 أرباع</b>. هذا التطبيق يعتمد على التتبع الدقيق لكل حزب وأرباعه بناءً على منهجية الحصون الخمسة.</p>
+
                     <h3>1. خطة اليوم الذكية</h3>
                     <ul>
-                        <li><b>المراجعة القريبة:</b> يظهر لك أحدث الأحزاب التي حفظتها لترسيخها.</li>
-                        <li><b>المراجعة البعيدة:</b> يمر بك على محفوظاتك القديمة بالترتيب لتراجعها.</li>
+                        <li><b>المراجعة القريبة:</b> يظهر لك أحدث الأحزاب التي حفظتها لترسيخها. عدد الأحزاب يومياً قابل للتعديل من الإعدادات.</li>
+                        <li><b>المراجعة البعيدة:</b> يمر بك على محفوظاتك القديمة بالترتيب. الأحزاب تبقى حتى تضغط <b>إتمام</b>.</li>
+                        <li><b>سلسلة المراجعة:</b> تتبع عدد الأيام المتواصلة في المراجعة.</li>
                     </ul>
-                    <h3>2. الأحزاب المتأخرة</h3>
-                    <p>أي حزب لم تراجعه منذ مدة طويلة (محددة حالياً بـ {DAYS} يوماً) سيظهر هنا باللون الأحمر. يمكنك تغيير هذه المدة من <b>الإعدادات ⚙️</b>.</p>
-                    <h3>3. التعديل السريع والجماعي</h3>
-                    <p>في قسم <b>تتبع الحفظ</b>، اضغط على زر <b>تعديل ✏️</b> لتحديد عدة أحزاب وتعيين تاريخ حفظها دفعة واحدة.</p>
-                    <h3>4. النسخ الاحتياطي</h3>
-                    <p>استخدم زري <b>تصدير / استيراد</b> في قسم الإعدادات للحفاظ على بياناتك.</p>
+
+                    <h3>2. تتبع الحفظ (الكل)</h3>
+                    <p>عرض شبكي لجميع الـ 60 حزباً. اضغط على أي حزب لفتح تفاصيله وتعديل عدد مرات المراجعة وتاريخها لكل ربع. يمكنك أيضاً إضافة ملاحظات خاصة بكل حزب.</p>
+                    <ul>
+                        <li><b>اللون الأخضر:</b> الحزب محفوظ كاملاً (4 أرباع).</li>
+                        <li><b>اللون الأحمر:</b> الحزب متأخر عن المراجعة (أكثر من {DAYS} يوماً).</li>
+                    </ul>
+
+                    <h3>3. الأحزاب المتأخرة</h3>
+                    <p>أي حزب لم تراجعه منذ أكثر من {DAYS} يوماً يظهر هنا. يمكنك تغيير هذه المدة من <b>الإعدادات ⚙️</b>.</p>
+
+                    <h3>4. التعديل الجماعي</h3>
+                    <p>في قسم <b>تتبع الحفظ</b>، اضغط <b>تعديل ✏️</b> لتحديد عدة أحزاب معاً وتسجيل مراجعتها في لحظة واحدة أو بتاريخ مخصص.</p>
+
+                    <h3>5. ورد القراءة</h3>
+                    <p>تتبع ختمات قراءتك اليومية. اضغط على أي جزء لتأشيره كمقروء. عند إكمال الختمة اضغط <b>بدء ختمة جديدة</b> لإعادة العداد.</p>
+
+                    <h3>6. ورد الاستماع</h3>
+                    <p>تتبع الأحزاب التي استمعت إليها. اضغط على أي حزب لتشغيله مباشرة أو تأشيره كمسموع. يتطلب اتصالاً بالإنترنت.</p>
+
+                    <h3>7. مولّد خطة الحفظ الأسبوعية</h3>
+                    <p>في تبويب <b>خطة الحفظ</b>، أدخل عدد الأجزاء المحفوظة وعدد الصفحات اليومية ليتم توليد جدول أسبوعي متكامل يشمل: الحفظ الجديد، المراجعة القريبة والبعيدة، التحضير، والقراءة المستمرة.</p>
+
+                    <h3>8. الإعدادات ⚙️</h3>
+                    <ul>
+                        <li><b>صلاحية المراجعة:</b> عدد الأيام قبل اعتبار الحزب متأخراً (7-90 يوماً).</li>
+                        <li><b>أحزاب المراجعة القريبة / البعيدة يومياً:</b> تحكم في حجم خطة يومك.</li>
+                        <li><b>إعداد سريع:</b> حدد آخر حزب حفظته ليُعيَّن تلقائياً كمحفوظ.</li>
+                        <li><b>تصدير / استيراد:</b> احفظ بياناتك ونقلها بين الأجهزة.</li>
+                        <li><b>إعادة التعيين:</b> أدخل 0 لمسح كل البيانات، أو رقم الحزب لمسح ما بعده فقط. يتم تصدير نسخة احتياطية تلقائياً قبل المسح.</li>
+                    </ul>
                 `,
                 tutClose:'حسناً، فهمت'
             },
@@ -488,19 +514,45 @@
                 tutTitle:'Welcome to Rusookh',
                 tutBody:`
                     <h3>Quran Structure:</h3>
-                    <p>The Quran is divided into <b>30 Juz'</b>, each containing <b>2 Hizbs</b> (60 total). Every Hizb has <b>4 Quarters</b>. This app tracks your progress down to the quarter level.</p>
-                    <p>Rusookh is your smart companion for tracking memorization using the 5 Fortresses method.</p>
+                    <p>The Quran is divided into <b>30 Juz'</b>, each containing <b>2 Hizbs</b> (60 total). Every Hizb has <b>4 Quarters</b>. Rusookh tracks your progress down to the quarter level using the 5 Fortresses method.</p>
+
                     <h3>1. Smart Daily Plan</h3>
                     <ul>
-                        <li><b>Near Revision:</b> Keeps your newest Hizbs front and center to solidify them.</li>
-                        <li><b>Far Revision:</b> Cycles through older memorization in order. Hizbs stay here until you click "Done".</li>
+                        <li><b>Near Revision:</b> Shows your most recently memorized Hizbs to keep them solid. Adjust how many appear daily in Settings.</li>
+                        <li><b>Far Revision:</b> Cycles through older memorization in order. Hizbs stay until you tap <b>Done</b>.</li>
+                        <li><b>Streak:</b> Tracks how many consecutive days you have revised.</li>
                     </ul>
-                    <h3>2. Overdue Warning</h3>
-                    <p>Any Hizb not revised in a while (currently {DAYS} days) will appear in red. Change this threshold in <b>Settings ⚙️</b>.</p>
-                    <h3>3. Bulk Edit</h3>
-                    <p>In the <b>Hifz Tracker</b> tab, click <b>Edit ✏️</b> to select multiple Hizbs and mark them at once.</p>
-                    <h3>4. Backup</h3>
-                    <p>Use <b>Export / Import</b> in Settings to keep your data safe.</p>
+
+                    <h3>2. Hifz Tracker (All)</h3>
+                    <p>A full grid of all 60 Hizbs. Tap any card to open its details — adjust revision count and date for each quarter, and add personal notes.</p>
+                    <ul>
+                        <li><b>Green:</b> Fully memorized (all 4 quarters).</li>
+                        <li><b>Red:</b> Overdue — not revised in more than {DAYS} days.</li>
+                    </ul>
+
+                    <h3>3. Overdue Tab</h3>
+                    <p>Shows only Hizbs that have gone past the revision threshold ({DAYS} days). Change this in <b>Settings ⚙️</b>.</p>
+
+                    <h3>4. Bulk Edit</h3>
+                    <p>In <b>Hifz Tracker</b>, tap <b>Edit ✏️</b> to select multiple Hizbs and mark them all as revised at once — using today's date or a custom one.</p>
+
+                    <h3>5. Daily Reading (Tilawah)</h3>
+                    <p>Track your daily reading Khatma. Tap any Juz to mark it as read. When you finish, tap <b>New Khatma</b> to reset and start again.</p>
+
+                    <h3>6. Daily Listening</h3>
+                    <p>Track which Hizbs you have listened to. Tap a card to play it directly (requires internet) or mark it as listened. Useful for passive revision.</p>
+
+                    <h3>7. Weekly Schedule Generator</h3>
+                    <p>In the <b>Schedule</b> tab, enter how many Juz you have memorized and your daily page target. The app generates a complete weekly table covering: new memorization, near & far revision, preparation, and continuous reading.</p>
+
+                    <h3>8. Settings ⚙️</h3>
+                    <ul>
+                        <li><b>Revision validity:</b> Days before a Hizb is flagged overdue (7–90).</li>
+                        <li><b>Near / Far Revision count:</b> How many Hizbs appear in your daily plan.</li>
+                        <li><b>Quick Setup:</b> Enter your last memorized Hizb to mark all previous ones as done today.</li>
+                        <li><b>Export / Import:</b> Back up your data and move it between devices.</li>
+                        <li><b>Reset:</b> Enter 0 to wipe all data, or a Hizb number to reset from that point forward. A backup is always exported before any reset.</li>
+                    </ul>
                 `,
                 tutClose:'Got it!'
             }
@@ -1297,7 +1349,7 @@
         ════════════════════════════════════════════ */
         function openTutorial() {
             document.getElementById('tutorialTitle').innerText = t('tutTitle');
-            document.getElementById('tutorialBody').innerHTML  = t('tutBody').replace('{DAYS}', toArabicNum(state.freshnessDays));
+            document.getElementById('tutorialBody').innerHTML  = t('tutBody').replaceAll('{DAYS}', toArabicNum(state.freshnessDays));
             document.getElementById('tutorialCloseBtn').innerText = t('tutClose');
             document.getElementById('tutorialModal').style.display = 'flex';
         }
@@ -1336,7 +1388,7 @@
 
             // Tutorial (keep up to date in background)
             document.getElementById('tutorialTitle').innerText    = t('tutTitle');
-            document.getElementById('tutorialBody').innerHTML     = t('tutBody').replace('{DAYS}', toArabicNum(state.freshnessDays));
+            document.getElementById('tutorialBody').innerHTML     = t('tutBody').replaceAll('{DAYS}', toArabicNum(state.freshnessDays));
             document.getElementById('tutorialCloseBtn').innerText = t('tutClose');
 
             // Tab content
