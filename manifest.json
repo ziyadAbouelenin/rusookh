@@ -1,0 +1,16 @@
+{
+  "name": "Rusookh Hifz Tracker",
+  "short_name": "رسوخ",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#F8FAFC",
+  "theme_color": "#059669",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Quran_Kareem.svg/512px-Quran_Kareem.svg.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
