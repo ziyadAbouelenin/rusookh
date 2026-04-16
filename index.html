@@ -6,8 +6,8 @@
     <title>Rusookh - رسوخ</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#059669">
-    <link rel="icon" type="image/png" href="icon-192.png">
-    <link rel="apple-touch-icon" href="icon-512.png">
+    <link rel="apple-touch-icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Quran_Kareem.svg/512px-Quran_Kareem.svg.png">
+
     <style>
         :root {
             --primary: #059669; --primary-light: #4ADE80;
@@ -306,28 +306,11 @@
             let recentHizbs = memHizbs.slice(-rCount);
             let seqPool = memHizbs.filter(h => !recentHizbs.includes(h)); 
 
-            // SYNC STEP: Check if any Hizb marked "Done" today has been modified in the tracker
-            if (state.plan.date === todayStr) {
-                state.plan.seqHizbs.forEach((h, i) => {
-                    if (state.plan.seqDone[i]) {
-                        const qs = state.quarters.filter(q => q.hizb === h);
-                        const lastRevised = Math.max(...qs.map(q => q.lastRevised || 0));
-                        // If the last revision happened AFTER we clicked "Done" (or if it was reset), 
-                        // we un-strike it so it's active again
-                        const planGeneratedTime = new Date(state.plan.date).getTime();
-                        if (lastRevised > planGeneratedTime && lastRevised > (state.plan.lastDoneTimestamp || 0)) {
-                            state.plan.seqDone[i] = false;
-                        }
-                    }
-                });
-            }
-
             let needsUpdate = state.plan.date !== todayStr || 
                               (state.plan.seqHizbs.length < sCount && seqPool.length > 0) || 
                               (state.plan.seqHizbs.length > sCount);
 
             if (needsUpdate) {
-                // ... [rest of your existing logic to fill the plan] ...
                 let oldSeq = state.plan.seqHizbs || [];
                 let oldDone = state.plan.seqDone || [];
                 let newSeq = [];
@@ -359,7 +342,7 @@
                     }
                 }
                 
-                state.plan = { date: todayStr, seqHizbs: newSeq, seqDone: newDone, recentHizbs: recentHizbs, lastDoneTimestamp: Date.now() };
+                state.plan = { date: todayStr, seqHizbs: newSeq, seqDone: newDone, recentHizbs: recentHizbs };
                 saveState();
             } else {
                 state.plan.recentHizbs = recentHizbs;
@@ -432,32 +415,37 @@
 
         function renderPlan(container) {
             let streak = calculateStreak();
-            let html = `<div class="streak-banner">...</div>`; // Keep your existing streak banner code here
             
-            // ... (keep Near Revision code) ...
+            let html = `<div class="streak-banner"><div class="streak-info"><p class="title">${t('streakTitle')}</p><p class="days">${streak === 0 ? t('streakEmpty') : `${toArabicNum(streak)} ${state.lang === 'en' ? 'Days' : 'أيام متواصلة'}`}</p></div>
+            <div class="streak-badge">
+                <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                <span class="streak-number">${toArabicNum(streak)}</span>
+            </div></div>`;
+            
+            if (state.planConfig.recent > 0) {
+                html += `<h2 class="section-title">${t('recent')}</h2>`;
+                if (state.plan.recentHizbs.length === 0) html += `<p style="color:gray; font-size:14px;">-</p>`;
+                state.plan.recentHizbs.forEach(h => {
+                    let qs = state.quarters.filter(q => q.hizb === h);
+                    let latestDate = Math.max(...qs.map(q => q.lastRevised || 0));
+                    html += `<div class="plan-item" onclick="openHizbModal(${h})"><span class="hizb-num">${t('hizb')} ${toArabicNum(h)}</span>
+                    <div style="text-align:left;"><span style="color:var(--secondary); font-size:11px; font-weight:bold; display:block;">${formatHijri(latestDate)}</span><span style="color:gray; font-size:11px;">${formatDate(latestDate)}</span></div></div>`;
+                });
+            }
 
             if (state.planConfig.seq > 0) {
                 html += `<h2 class="section-title">${t('seq')}</h2>`;
                 if (state.plan.seqHizbs.length === 0) html += `<p style="color:gray; font-size:14px;">-</p>`;
-                
                 state.plan.seqHizbs.forEach((h, index) => {
-                    const qs = state.quarters.filter(q => q.hizb === h);
-                    const actualLastRevised = Math.max(...qs.map(q => q.lastRevised || 0));
-                    const doneAt = (state.plan.doneTimestamps && state.plan.doneTimestamps[h]) ? state.plan.doneTimestamps[h] : 0;
-                    
-                    // The Fix: Only strike through if it was marked done AND hasn't been revised/reset since then
-                    const isDone = state.plan.seqDone[index] && (actualLastRevised <= doneAt);
-                    
-                    html += `<div class="plan-item ${isDone ? 'done' : ''}">
-                                <span class="hizb-num">${t('hizb')} ${toArabicNum(h)}</span>
-                                <button class="${isDone ? 'btn-outline' : 'btn-primary'}" 
-                                        onclick="markSeqDone(${index})" ${isDone ? 'disabled' : ''}>
-                                    ${t('done')}
-                                </button>
-                             </div>`;
+                    const isDone = state.plan.seqDone[index];
+                    html += `<div class="plan-item ${isDone ? 'done' : ''}"><span class="hizb-num">${t('hizb')} ${toArabicNum(h)}</span><button class="${isDone ? 'btn-outline' : 'btn-primary'}" onclick="markSeqDone(${index})" ${isDone ? 'disabled' : ''}>${t('done')}</button></div>`;
                 });
             }
-            // ... (keep the rest)
+
+            if (state.planConfig.recent === 0 && state.planConfig.seq === 0) {
+                 html += `<p style="text-align:center; color:gray; margin-top:30px; font-size: 14px;">${state.lang === 'en' ? 'Daily plan is disabled in settings.' : 'خطة اليوم معطلة في الإعدادات.'}</p>`;
+            }
+
             container.innerHTML = html;
         }
 
@@ -586,44 +574,27 @@
             currentAudio.onended = () => playNextAyah(index + 1);
         }
 
-        function markSeqDone(index) { 
-            state.plan.seqDone[index] = true; 
-            if (!state.plan.doneTimestamps) state.plan.doneTimestamps = {};
-            // Record exactly when THIS specific Hizb was marked done in the plan
-            state.plan.doneTimestamps[state.plan.seqHizbs[index]] = Date.now();
-            saveState(); 
-            renderApp(); 
-        }
+        function markSeqDone(index) { state.plan.seqDone[index] = true; saveState(); renderApp(); }
         function toggleListening(hizb) { let item = state.listening.find(l => l.hizb === hizb); item.listened = !item.listened; saveState(); renderApp(); }
         function toggleBulkMode() { isBulkMode = !isBulkMode; if (!isBulkMode) selectedHizbs.clear(); renderApp(); }
-        function toggleHizbSelection(hizb) { 
-            if (selectedHizbs.has(hizb)) {
-                selectedHizbs.delete(hizb); // This allows deselecting
-            } else {
-                selectedHizbs.add(hizb); 
-            }
-            renderApp(); // Re-render to update the "Selected count" and card highlights
-        }
+        function toggleHizbSelection(hizb) { if (selectedHizbs.has(hizb)) selectedHizbs.delete(hizb); else selectedHizbs.add(hizb); renderApp(); }
         
         // INCREMENT LOGIC ADDED HERE
         function bulkAction(type, dateVal = null) {
             if (selectedHizbs.size === 0) return;
+            if (type === 'date' && !dateVal) return; 
             const targetTime = type === 'today' ? Date.now() : new Date(dateVal).getTime();
-            
             selectedHizbs.forEach(h => { 
                 state.quarters.filter(q => q.hizb === h).forEach(q => { 
                     if (q.revCount === 0) {
-                        q.revCount = 1; // 1 = First time (Memorized)
-                    } else if (q.revCount < 11) {
-                        q.revCount += 1; // 2+ = Revision
+                        q.revCount = 1; // Mark as memorized
+                    } else if (q.revCount >= 1 && q.revCount < 11) {
+                        q.revCount += 1; // Mark as revised
                     }
                     q.lastRevised = targetTime; 
                 }); 
             });
-            
-            saveState(); 
-            toggleBulkMode(); // This clears the set and hides the bar
-            renderApp();
+            saveState(); toggleBulkMode(); renderApp();
         }
 
         function openHizbModal(hizb) {
