@@ -264,6 +264,33 @@
                     <input type="file" style="display:none;" accept=".json" onchange="importData(event)">
                 </label>
             </div>
+
+            <hr>
+            <!-- Selective Reset -->
+            <h3 style="color:var(--danger);margin-bottom:10px;">⚠️ إعادة تعيين</h3>
+            <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">أدخل 0 لإعادة تعيين الكل، أو رقم الحزب لإعادة تعيين ما بعده فقط.</p>
+            <div style="display:flex;gap:10px;">
+                <input type="number" id="resetFromInput" min="0" max="60" placeholder="0 – 60" style="flex:1;">
+                <button class="btn-danger" onclick="promptReset()">إعادة تعيين</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reset warning modal -->
+    <div class="modal-overlay" id="resetWarningModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 style="color:var(--danger);">⚠️ تحذير</h2>
+                <button class="close-btn" onclick="closeModal('resetWarningModal')">×</button>
+            </div>
+            <p id="resetWarningText" style="font-size:14px;color:var(--text-muted);margin-bottom:16px;line-height:1.6;"></p>
+            <div style="background:var(--danger-light);border-radius:8px;padding:12px;margin-bottom:20px;">
+                <p style="color:var(--danger);font-weight:700;font-size:13px;margin:0;">هذا الإجراء لا يمكن التراجع عنه!</p>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+                <button class="btn-danger" onclick="doResetAndExport()">💾 تصدير نسخة احتياطية ثم إعادة التعيين</button>
+                <button class="btn-outline" onclick="closeModal('resetWarningModal')">إلغاء</button>
+            </div>
         </div>
     </div>
 
@@ -1362,6 +1389,65 @@
                 openTutorial();
                 localStorage.setItem('rusookh_tutorial_seen', 'true');
             }, 500);
+        }
+
+        /* ════════════════════════════════════════════
+           SELECTIVE RESET
+        ════════════════════════════════════════════ */
+        let _resetFromHizb = null;
+
+        function promptReset() {
+            const raw = document.getElementById('resetFromInput').value;
+            const val = parseInt(raw);
+            if (raw === '' || isNaN(val) || val < 0 || val > 60) {
+                showToast(state.lang === 'ar' ? 'أدخل رقماً بين 0 و 60' : 'Enter a number between 0 and 60');
+                return;
+            }
+            _resetFromHizb = val;
+            const isAr = state.lang === 'ar';
+            document.getElementById('resetWarningText').innerText = val === 0
+                ? (isAr ? 'سيتم مسح جميع بيانات الحفظ والمراجعة والاستماع. سيتم تصدير نسخة احتياطية أولاً.' : 'All memorization, revision, and listening data will be erased. A backup will be exported first.')
+                : (isAr ? `سيتم مسح بيانات الحزب ${val} وما بعده فقط. سيتم تصدير نسخة احتياطية أولاً.` : `Data from Hizb ${val} onwards will be erased. A backup will be exported first.`);
+            closeModal('settingsModal');
+            document.getElementById('resetWarningModal').style.display = 'flex';
+        }
+
+        function doResetAndExport() {
+            // Always export first
+            exportData();
+
+            const from = _resetFromHizb;
+
+            if (from === 0) {
+                // Full reset — keep user name, lang, settings
+                state.quarters.forEach(q => { q.revCount = 0; q.lastRevised = 0; });
+                state.listening.forEach(l => { l.listened = false; });
+                state.tilawah = Array(30).fill(0);
+                state.hizbNotes = {};
+                state.plan = { date: '', seqHizbs: [], seqDone: [], recentHizbs: [] };
+            } else {
+                // Selective reset from hizb onwards
+                state.quarters.forEach(q => {
+                    if (q.hizb >= from) { q.revCount = 0; q.lastRevised = 0; }
+                });
+                state.listening.forEach(l => {
+                    if (l.hizb >= from) l.listened = false;
+                });
+                // Remove hizb notes for affected hizbs
+                Object.keys(state.hizbNotes).forEach(k => {
+                    if (parseInt(k) >= from) delete state.hizbNotes[k];
+                });
+                // Trim plan
+                state.plan.seqHizbs  = state.plan.seqHizbs.filter(h => h < from);
+                state.plan.seqDone   = state.plan.seqDone.slice(0, state.plan.seqHizbs.length);
+                state.plan.recentHizbs = state.plan.recentHizbs.filter(h => h < from);
+            }
+
+            saveState();
+            closeModal('resetWarningModal');
+            _resetFromHizb = null;
+            showToast(state.lang === 'ar' ? 'تمت إعادة التعيين بنجاح ✓' : 'Reset successful ✓');
+            renderApp();
         }
     </script>
 </body>
