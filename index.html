@@ -41,11 +41,16 @@
         .streak-info .title { font-size: 12px; opacity: 0.85; }
         .streak-info .days { font-size: 16px; font-weight: bold; }
         
-        /* Updated Star Badge CSS */
         .streak-badge { position: relative; width: 65px; height: 65px; display: flex; justify-content: center; align-items: center; }
         .streak-badge svg { position: absolute; width: 100%; height: 100%; top: 0; left: 0; fill: #004D40; filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.2)); }
         .streak-number { position: relative; z-index: 1; font-size: 20px; font-weight: 900; color: #FFFFFF; margin-top: 4px; }
         
+        /* New Progress Bar CSS */
+        .progress-container { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 15px; margin-bottom: 20px; }
+        .progress-header { display: flex; justify-content: space-between; font-size: 14px; font-weight: bold; margin-bottom: 8px; color: var(--text); }
+        .progress-bar-bg { background: var(--border); height: 10px; border-radius: 5px; overflow: hidden; position: relative; }
+        .progress-bar-fill { background: var(--primary); height: 100%; transition: width 0.4s ease; }
+
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(75px, 1fr)); gap: 12px; }
         .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 15px 5px; text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 110px; position: relative; }
         .card.memorized { background: #ECFDF5; border-color: rgba(5, 150, 105, 0.3); }
@@ -210,6 +215,7 @@
                 listenedText: "تم الاستماع",
                 recent: "المراجعة القريبة", seq: "المراجعة البعيدة", done: "إتمام", 
                 khatmaTracker: "تتبع الختمة", newKhatma: "بدء ختمة جديدة",
+                overallProgress: "إجمالي الحفظ",
                 quarterNames: ["ربع الحزب", "نصف الحزب", "ثلاثة أرباع", "الحزب كامل"], 
                 never: "لم يبدأ", streakTitle: "سلسلة المراجعة", streakEmpty: "ابدأ سلسلتك اليوم!", 
                 edit: "تعديل", overdueLabel: "متأخرة", notesHolder: "ملاحظات وتنبيهات الحزب...",
@@ -219,6 +225,9 @@
                 bulkSelected: "تم تحديد", bulkToday: "حفظ اليوم", bulkCancel: "إلغاء",
                 tutTitle: "مرحباً بك في رسوخ (الحصون الخمسة)",
                 tutBody: `
+                    <h3>مقدمة عن تقسيم القرآن:</h3>
+                    <p>القرآن الكريم مقسم إلى <b>30 جزءاً</b>، وكل جزء يتكون من <b>حزبين</b> (المجموع 60 حزباً). وكل حزب مقسم إلى <b>4 أرباع</b>. هذا التطبيق يعتمد على التتبع الدقيق لكل حزب وأرباعه لتسهيل المراجعة.</p>
+                    
                     <p>رسوخ هو رفيقك لتتبع حفظ ومراجعة القرآن الكريم بذكاء بناءً على منهجية الحصون الخمسة. إليك كيف يعمل:</p>
                     <h3>1. خطة اليوم الذكية</h3>
                     <ul>
@@ -238,6 +247,7 @@
                 listenedText: "Listened",
                 recent: "Near Revision", seq: "Far Revision", done: "Done", 
                 khatmaTracker: "Khatma Tracker", newKhatma: "New Khatma",
+                overallProgress: "Overall Progress",
                 quarterNames: ["1st Quarter", "Half", "3rd Quarter", "Full Hizb"], 
                 never: "Not Started", streakTitle: "Revision Streak", streakEmpty: "Start your streak today!", 
                 edit: "Edit", overdueLabel: "Overdue", notesHolder: "Hizb notes...",
@@ -247,6 +257,9 @@
                 bulkSelected: "Selected", bulkToday: "Today", bulkCancel: "Cancel",
                 tutTitle: "Welcome to Rusookh",
                 tutBody: `
+                    <h3>Quran Structure:</h3>
+                    <p>The Quran is divided into <b>30 Juz'</b> (parts), and each Juz' contains <b>2 Hizbs</b> (totaling 60 Hizbs). Every Hizb is further divided into <b>4 Quarters</b>. This app tracks your progress down to the quarter-Hizb level for precision.</p>
+
                     <p>Rusookh is your smart companion for tracking Quranic memorization based on the 5 Fortresses method.</p>
                     <h3>1. The Smart Daily Plan</h3>
                     <ul>
@@ -264,10 +277,11 @@
 
         const t = (key) => dict[state.lang][key] || key;
         const toArabicNum = (num) => state.lang === 'en' ? num.toString() : num.toString().replace(/[0-9]/g, d => ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'][d]);
-        const formatDate = (ts) => ts ? `${toArabicNum(new Date(ts).getDate())} ${new Date(ts).toLocaleString(state.lang==='ar'?'ar-EG':'en-US', { month: 'short' })}` : t('never');
+        
+        const formatDate = (ts) => ts ? `<bdi>${toArabicNum(new Date(ts).getDate())} ${new Date(ts).toLocaleString(state.lang==='ar'?'ar-EG':'en-GB', { month: 'short' })}</bdi>` : t('never');
         const formatHijri = (ts) => {
             if(!ts) return '';
-            try { return new Intl.DateTimeFormat(state.lang === 'ar' ? 'ar-SA-u-ca-islamic' : 'en-US-u-ca-islamic', {day:'numeric', month:'short'}).format(new Date(ts)); } catch(e) { return ''; }
+            try { return `<bdi>${new Intl.DateTimeFormat(state.lang === 'ar' ? 'ar-SA-u-ca-islamic' : 'en-GB-u-ca-islamic', {day:'numeric', month:'short'}).format(new Date(ts))}</bdi>`; } catch(e) { return ''; }
         };
 
         function toggleLanguage() { state.lang = state.lang === 'ar' ? 'en' : 'ar'; document.documentElement.lang = state.lang; document.documentElement.dir = state.lang === 'ar' ? 'rtl' : 'ltr'; renderApp(); }
@@ -289,9 +303,12 @@
                 let newSeq = [];
                 let newDone = [];
 
-                oldSeq.forEach((h, i) => { if (!oldDone[i] && seqPool.includes(h)) { newSeq.push(h); newDone.push(false); } });
+                oldSeq.forEach((h, i) => { 
+                    let keep = (state.plan.date !== todayStr) ? !oldDone[i] : true;
+                    if (keep && seqPool.includes(h)) { newSeq.push(h); newDone.push(state.plan.date !== todayStr ? false : oldDone[i]); } 
+                });
 
-                let lastHizb = Math.max(...oldSeq, 0);
+                let lastHizb = oldSeq.length > 0 ? Math.max(...oldSeq) : 0;
                 let maxCanAdd = Math.min(sCount, seqPool.length);
                 let safetyCounter = 0; 
 
@@ -336,9 +353,9 @@
 
         function renderDateBar() {
             const d = new Date();
-            const grego = new Intl.DateTimeFormat(state.lang === 'ar' ? 'ar-EG' : 'en-US', {weekday:'long', day:'numeric', month:'long'}).format(d);
-            const hijri = new Intl.DateTimeFormat(state.lang === 'ar' ? 'ar-SA-u-ca-islamic' : 'en-US-u-ca-islamic', {day:'numeric', month:'long', year:'numeric'}).format(d);
-            document.getElementById('dateBar').innerHTML = `${grego} &nbsp;|&nbsp; ${hijri}`;
+            const grego = new Intl.DateTimeFormat(state.lang === 'ar' ? 'ar-EG' : 'en-GB', {weekday:'long', day:'numeric', month:'long'}).format(d);
+            const hijri = new Intl.DateTimeFormat(state.lang === 'ar' ? 'ar-SA-u-ca-islamic' : 'en-GB-u-ca-islamic', {day:'numeric', month:'long', year:'numeric'}).format(d);
+            document.getElementById('dateBar').innerHTML = `<bdi>${grego}</bdi> &nbsp;|&nbsp; <bdi>${hijri}</bdi>`;
         }
 
         function renderApp() {
@@ -379,7 +396,6 @@
         function renderPlan(container) {
             let streak = calculateStreak();
             
-            // NEW STAR SVG BADGE
             let html = `<div class="streak-banner"><div class="streak-info"><p class="title">${t('streakTitle')}</p><p class="days">${streak === 0 ? t('streakEmpty') : `${toArabicNum(streak)} ${state.lang === 'en' ? 'Days' : 'أيام متواصلة'}`}</p></div>
             <div class="streak-badge">
                 <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
@@ -405,7 +421,29 @@
         }
 
         function renderGrid(container, filterType) {
-            let html = filterType === 'all' ? `<div style="display:flex; justify-content:flex-end; margin-bottom: 15px;"><button class="btn-outline" onclick="toggleBulkMode()">${isBulkMode ? t('bulkCancel') : t('edit')} ✏️</button></div>` : '';
+            let html = '';
+            
+            // Add Progress Bar for Hifz Tracker Tab
+            if (filterType === 'all') {
+                let fullHizbs = 0;
+                for (let i = 1; i <= 60; i++) {
+                    if (state.quarters.filter(q => q.hizb === i && q.revCount > 0).length === 4) fullHizbs++;
+                }
+                let percentage = Math.round((fullHizbs / 60) * 100);
+                
+                html += `
+                <div class="progress-container">
+                    <div class="progress-header">
+                        <span>${t('overallProgress')}</span>
+                        <bdi>${toArabicNum(percentage)}% (${toArabicNum(fullHizbs)}/60)</bdi>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: ${percentage}%;"></div>
+                    </div>
+                </div>
+                <div style="display:flex; justify-content:flex-end; margin-bottom: 15px;"><button class="btn-outline" onclick="toggleBulkMode()">${isBulkMode ? t('bulkCancel') : t('edit')} ✏️</button></div>`;
+            }
+
             html += '<div class="grid">'; let count = 0;
             for (let i = 1; i <= 60; i++) {
                 let qs = state.quarters.filter(q => q.hizb === i);
