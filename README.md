@@ -1,7 +1,5 @@
 # Rusookh (رسوخ) - Quran Hifz Tracker 📖
 
-![Rusookh App](https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Quran_Kareem.svg/100px-Quran_Kareem.svg.png)
-
 **Rusookh** is a smart, offline-first Progressive Web App (PWA) designed to help users track their Quranic memorization and daily revision. The tracking algorithm is strictly based on the **Alhusoon Alkhamsa (الحصون الخمسة)** methodology, ensuring a structured and highly effective approach to Hifz.
 
 🌐 **[Live Demo: Play with the App Here](https://ziyadabouelenin.github.io/rusookh/)**
