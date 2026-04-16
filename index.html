@@ -306,11 +306,28 @@
             let recentHizbs = memHizbs.slice(-rCount);
             let seqPool = memHizbs.filter(h => !recentHizbs.includes(h)); 
 
+            // SYNC STEP: Check if any Hizb marked "Done" today has been modified in the tracker
+            if (state.plan.date === todayStr) {
+                state.plan.seqHizbs.forEach((h, i) => {
+                    if (state.plan.seqDone[i]) {
+                        const qs = state.quarters.filter(q => q.hizb === h);
+                        const lastRevised = Math.max(...qs.map(q => q.lastRevised || 0));
+                        // If the last revision happened AFTER we clicked "Done" (or if it was reset), 
+                        // we un-strike it so it's active again
+                        const planGeneratedTime = new Date(state.plan.date).getTime();
+                        if (lastRevised > planGeneratedTime && lastRevised > (state.plan.lastDoneTimestamp || 0)) {
+                            state.plan.seqDone[i] = false;
+                        }
+                    }
+                });
+            }
+
             let needsUpdate = state.plan.date !== todayStr || 
                               (state.plan.seqHizbs.length < sCount && seqPool.length > 0) || 
                               (state.plan.seqHizbs.length > sCount);
 
             if (needsUpdate) {
+                // ... [rest of your existing logic to fill the plan] ...
                 let oldSeq = state.plan.seqHizbs || [];
                 let oldDone = state.plan.seqDone || [];
                 let newSeq = [];
@@ -342,7 +359,7 @@
                     }
                 }
                 
-                state.plan = { date: todayStr, seqHizbs: newSeq, seqDone: newDone, recentHizbs: recentHizbs };
+                state.plan = { date: todayStr, seqHizbs: newSeq, seqDone: newDone, recentHizbs: recentHizbs, lastDoneTimestamp: Date.now() };
                 saveState();
             } else {
                 state.plan.recentHizbs = recentHizbs;
