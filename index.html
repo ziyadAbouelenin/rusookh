@@ -427,21 +427,33 @@
                 <span class="streak-number">${toArabicNum(streak)}</span>
             </div></div>`;
             
-            html += `<h2 class="section-title">${t('recent')}</h2>`;
-            if (state.plan.recentHizbs.length === 0) html += `<p style="color:gray; font-size:14px;">-</p>`;
-            state.plan.recentHizbs.forEach(h => {
-                let qs = state.quarters.filter(q => q.hizb === h);
-                let latestDate = Math.max(...qs.map(q => q.lastRevised || 0));
-                html += `<div class="plan-item" onclick="openHizbModal(${h})"><span class="hizb-num">${t('hizb')} ${toArabicNum(h)}</span>
-                <div style="text-align:left;"><span style="color:var(--secondary); font-size:11px; font-weight:bold; display:block;">${formatHijri(latestDate)}</span><span style="color:gray; font-size:11px;">${formatDate(latestDate)}</span></div></div>`;
-            });
+            // Only show Near Revision if the setting is greater than 0
+            if (state.planConfig.recent > 0) {
+                html += `<h2 class="section-title">${t('recent')}</h2>`;
+                if (state.plan.recentHizbs.length === 0) html += `<p style="color:gray; font-size:14px;">-</p>`;
+                state.plan.recentHizbs.forEach(h => {
+                    let qs = state.quarters.filter(q => q.hizb === h);
+                    let latestDate = Math.max(...qs.map(q => q.lastRevised || 0));
+                    html += `<div class="plan-item" onclick="openHizbModal(${h})"><span class="hizb-num">${t('hizb')} ${toArabicNum(h)}</span>
+                    <div style="text-align:left;"><span style="color:var(--secondary); font-size:11px; font-weight:bold; display:block;">${formatHijri(latestDate)}</span><span style="color:gray; font-size:11px;">${formatDate(latestDate)}</span></div></div>`;
+                });
+            }
 
-            html += `<h2 class="section-title">${t('seq')}</h2>`;
-            if (state.plan.seqHizbs.length === 0) html += `<p style="color:gray; font-size:14px;">-</p>`;
-            state.plan.seqHizbs.forEach((h, index) => {
-                const isDone = state.plan.seqDone[index];
-                html += `<div class="plan-item ${isDone ? 'done' : ''}"><span class="hizb-num">${t('hizb')} ${toArabicNum(h)}</span><button class="${isDone ? 'btn-outline' : 'btn-primary'}" onclick="markSeqDone(${index})" ${isDone ? 'disabled' : ''}>${t('done')}</button></div>`;
-            });
+            // Only show Far Revision if the setting is greater than 0
+            if (state.planConfig.seq > 0) {
+                html += `<h2 class="section-title">${t('seq')}</h2>`;
+                if (state.plan.seqHizbs.length === 0) html += `<p style="color:gray; font-size:14px;">-</p>`;
+                state.plan.seqHizbs.forEach((h, index) => {
+                    const isDone = state.plan.seqDone[index];
+                    html += `<div class="plan-item ${isDone ? 'done' : ''}"><span class="hizb-num">${t('hizb')} ${toArabicNum(h)}</span><button class="${isDone ? 'btn-outline' : 'btn-primary'}" onclick="markSeqDone(${index})" ${isDone ? 'disabled' : ''}>${t('done')}</button></div>`;
+                });
+            }
+
+            // Fallback just in case they set BOTH to zero!
+            if (state.planConfig.recent === 0 && state.planConfig.seq === 0) {
+                 html += `<p style="text-align:center; color:gray; margin-top:30px; font-size: 14px;">${state.lang === 'en' ? 'Daily plan is disabled in settings.' : 'خطة اليوم معطلة في الإعدادات.'}</p>`;
+            }
+
             container.innerHTML = html;
         }
 
