@@ -45,10 +45,16 @@
         .streak-badge svg { position: absolute; width: 100%; height: 100%; top: 0; left: 0; fill: #004D40; filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.2)); }
         .streak-number { position: relative; z-index: 1; font-size: 20px; font-weight: 900; color: #FFFFFF; margin-top: 4px; }
         
-        .progress-container { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 15px; margin-bottom: 20px; }
+        .progress-container { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 15px; margin-bottom: 12px; }
         .progress-header { display: flex; justify-content: space-between; font-size: 14px; font-weight: bold; margin-bottom: 8px; color: var(--text); }
         .progress-bar-bg { background: var(--border); height: 10px; border-radius: 5px; overflow: hidden; position: relative; }
         .progress-bar-fill { background: var(--primary); height: 100%; transition: width 0.4s ease; }
+
+        /* New Stats Dashboard CSS */
+        .stats-grid { display: flex; gap: 10px; margin-bottom: 20px; }
+        .stat-box { flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 5px; text-align: center; display: flex; flex-direction: column; justify-content: center;}
+        .stat-value { font-size: 18px; font-weight: bold; color: var(--primary); }
+        .stat-label { font-size: 11px; color: gray; margin-top: 4px; font-weight: 500; }
 
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(75px, 1fr)); gap: 12px; }
         .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 15px 5px; text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 110px; position: relative; }
@@ -118,7 +124,7 @@
     <div class="bulk-bar" id="bulkBar">
         <span id="bulkCount" style="font-weight:bold;">تم تحديد 0</span>
         <div style="display:flex; gap:10px; align-items:center;">
-            <button id="bulkTodayBtn" class="btn-primary" onclick="bulkAction('today')">حفظ اليوم</button>
+            <button id="bulkTodayBtn" class="btn-primary" onclick="bulkAction('today')">مُراجعة اليوم</button>
             <input type="date" id="bulkDateInput" class="native-date-btn" onchange="bulkAction('date', this.value)">
             <button id="bulkCancelBtn" class="btn-outline" onclick="toggleBulkMode()">إلغاء</button>
         </div>
@@ -214,14 +220,14 @@
                 listenedText: "تم الاستماع",
                 recent: "المراجعة القريبة", seq: "المراجعة البعيدة", done: "إتمام", 
                 khatmaTracker: "تتبع الختمة", newKhatma: "بدء ختمة جديدة",
-                overallProgress: "إجمالي الحفظ",
+                overallProgress: "إجمالي الحفظ", totalRevisions: "إجمالي المراجعات", hifzStrength: "متوسط التكرار", overdueCount: "أحزاب متأخرة",
                 quarterNames: ["ربع الحزب", "نصف الحزب", "ثلاثة أرباع", "الحزب كامل"], 
                 never: "لم يبدأ", streakTitle: "سلسلة المراجعة", streakEmpty: "ابدأ سلسلتك اليوم!", 
                 edit: "تعديل", overdueLabel: "متأخرة", notesHolder: "ملاحظات وتنبيهات الحزب...",
                 namePlaceholder: "الاسم", settingsTitle: "الإعدادات", settingsSaveBtn: "حفظ",
                 setFreshness: "صلاحية المراجعة (بالأيام)", setRecent: "أحزاب المراجعة القريبة يومياً", setSeq: "أحزاب المراجعة البعيدة يومياً",
                 quickSetupTitle: "إعداد سريع", quickSetupDesc: "حدد آخر حزب تحفظه ليتم تعيين ما قبله كمحفوظ بتاريخ اليوم:", quickSetupBtn: "تطبيق",
-                bulkSelected: "تم تحديد", bulkToday: "حفظ اليوم", bulkCancel: "إلغاء",
+                bulkSelected: "تم تحديد", bulkToday: "مُراجعة اليوم", bulkCancel: "إلغاء",
                 tutTitle: "مرحباً بك في رسوخ (الحصون الخمسة)",
                 tutBody: `
                     <h3>مقدمة عن تقسيم القرآن:</h3>
@@ -246,14 +252,14 @@
                 listenedText: "Listened",
                 recent: "Near Revision", seq: "Far Revision", done: "Done", 
                 khatmaTracker: "Khatma Tracker", newKhatma: "New Khatma",
-                overallProgress: "Overall Progress",
+                overallProgress: "Overall Progress", totalRevisions: "Total Revisions", hifzStrength: "Avg Repetitions", overdueCount: "Overdue Hizbs",
                 quarterNames: ["1st Quarter", "Half", "3rd Quarter", "Full Hizb"], 
                 never: "Not Started", streakTitle: "Revision Streak", streakEmpty: "Start your streak today!", 
                 edit: "Edit", overdueLabel: "Overdue", notesHolder: "Hizb notes...",
                 namePlaceholder: "Name", settingsTitle: "Settings", settingsSaveBtn: "Save",
                 setFreshness: "Revision Validity (Days)", setRecent: "Near Revision Hizbs per day", setSeq: "Far Revision Hizbs per day",
                 quickSetupTitle: "Quick Setup", quickSetupDesc: "Enter the last Hizb you memorized to mark it and all previous as done today:", quickSetupBtn: "Apply",
-                bulkSelected: "Selected", bulkToday: "Today", bulkCancel: "Cancel",
+                bulkSelected: "Selected", bulkToday: "Revised Today", bulkCancel: "Cancel",
                 tutTitle: "Welcome to Rusookh",
                 tutBody: `
                     <h3>Quran Structure:</h3>
@@ -277,14 +283,11 @@
         const t = (key) => dict[state.lang][key] || key;
         const toArabicNum = (num) => state.lang === 'en' ? num.toString() : num.toString().replace(/[0-9]/g, d => ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'][d]);
         
-        // FIXED: Using options object for calendar instead of locale tag to avoid "BC" bug in Edge/Safari
         const formatDate = (ts) => ts ? `<bdi>${toArabicNum(new Date(ts).getDate())} ${new Date(ts).toLocaleString(state.lang==='ar'?'ar-EG':'en-GB', { month: 'short' })}</bdi>` : t('never');
         const formatHijri = (ts) => {
             if(!ts) return '';
             try { 
-                // Using standard 'islamic' and en-US to prevent Edge mobile math bugs
                 let dateStr = new Intl.DateTimeFormat(state.lang === 'ar' ? 'ar-SA' : 'en-US', {calendar: 'islamic', day:'numeric', month:'short'}).format(new Date(ts));
-                // Safety net: If browser still glitches, hide it rather than showing BC
                 if(dateStr.includes('BC') || dateStr.includes('ق.م')) return '';
                 return `<bdi>${dateStr}</bdi>`; 
             } catch(e) { return ''; }
@@ -303,7 +306,6 @@
             let recentHizbs = memHizbs.slice(-rCount);
             let seqPool = memHizbs.filter(h => !recentHizbs.includes(h)); 
 
-            // NEW LOGIC: Update if it's a new day, if we have empty slots to fill, OR if our current list is larger than the allowed setting (e.g. setting changed to 0)
             let needsUpdate = state.plan.date !== todayStr || 
                               (state.plan.seqHizbs.length < sCount && seqPool.length > 0) || 
                               (state.plan.seqHizbs.length > sCount);
@@ -314,10 +316,8 @@
                 let newSeq = [];
                 let newDone = [];
 
-                // Carry over unfinished items, but ONLY up to the maximum allowed by sCount
                 oldSeq.forEach((h, i) => { 
                     let keep = (state.plan.date !== todayStr) ? !oldDone[i] : true;
-                    // STRICT LIMIT CHECK: Never push if newSeq is already full or if sCount is 0
                     if (keep && seqPool.includes(h) && newSeq.length < sCount) { 
                         newSeq.push(h); 
                         newDone.push(state.plan.date !== todayStr ? false : oldDone[i]); 
@@ -328,7 +328,6 @@
                 let maxCanAdd = Math.min(sCount, seqPool.length);
                 let safetyCounter = 0; 
 
-                // Fill remaining slots up to sCount
                 while(newSeq.length < maxCanAdd && safetyCounter < 100) {
                     safetyCounter++;
                     let nextCandidates = seqPool.filter(h => h > lastHizb && !newSeq.includes(h));
@@ -346,7 +345,6 @@
                 state.plan = { date: todayStr, seqHizbs: newSeq, seqDone: newDone, recentHizbs: recentHizbs };
                 saveState();
             } else {
-                // Keep recent updated even if far revision doesn't change
                 state.plan.recentHizbs = recentHizbs;
                 saveState();
             }
@@ -369,17 +367,14 @@
             return qs.some(q => q.revCount > 0) && !qs.some(q => q.lastRevised && (Date.now() - q.lastRevised) <= (state.freshnessDays * 86400000));
         }
 
-        // FIXED: Using options object for calendar instead of locale tag to avoid "BC" bug
         function renderDateBar() {
             const d = new Date();
             const grego = new Intl.DateTimeFormat(state.lang === 'ar' ? 'ar-EG' : 'en-GB', {weekday:'long', day:'numeric', month:'long'}).format(d);
-            
             let hijriStr = '';
             try {
                 hijriStr = new Intl.DateTimeFormat(state.lang === 'ar' ? 'ar-SA' : 'en-US', {calendar: 'islamic', day:'numeric', month:'long', year:'numeric'}).format(d);
                 if(hijriStr.includes('BC') || hijriStr.includes('ق.م')) hijriStr = '';
             } catch(e) {}
-
             document.getElementById('dateBar').innerHTML = `<bdi>${grego}</bdi> ${hijriStr ? `&nbsp;|&nbsp; <bdi>${hijriStr}</bdi>` : ''}`;
         }
 
@@ -427,7 +422,6 @@
                 <span class="streak-number">${toArabicNum(streak)}</span>
             </div></div>`;
             
-            // Only show Near Revision if the setting is greater than 0
             if (state.planConfig.recent > 0) {
                 html += `<h2 class="section-title">${t('recent')}</h2>`;
                 if (state.plan.recentHizbs.length === 0) html += `<p style="color:gray; font-size:14px;">-</p>`;
@@ -439,7 +433,6 @@
                 });
             }
 
-            // Only show Far Revision if the setting is greater than 0
             if (state.planConfig.seq > 0) {
                 html += `<h2 class="section-title">${t('seq')}</h2>`;
                 if (state.plan.seqHizbs.length === 0) html += `<p style="color:gray; font-size:14px;">-</p>`;
@@ -449,7 +442,6 @@
                 });
             }
 
-            // Fallback just in case they set BOTH to zero!
             if (state.planConfig.recent === 0 && state.planConfig.seq === 0) {
                  html += `<p style="text-align:center; color:gray; margin-top:30px; font-size: 14px;">${state.lang === 'en' ? 'Daily plan is disabled in settings.' : 'خطة اليوم معطلة في الإعدادات.'}</p>`;
             }
@@ -460,12 +452,21 @@
         function renderGrid(container, filterType) {
             let html = '';
             
+            // Add Progress Bar and Stats Dashboard for Hifz Tracker Tab
             if (filterType === 'all') {
                 let fullHizbs = 0;
+                let memQuarters = state.quarters.filter(q => q.revCount > 0);
+                
                 for (let i = 1; i <= 60; i++) {
                     if (state.quarters.filter(q => q.hizb === i && q.revCount > 0).length === 4) fullHizbs++;
                 }
                 let percentage = Math.round((fullHizbs / 60) * 100);
+                
+                // Calculate Stats
+                let totalRevisions = memQuarters.reduce((sum, q) => sum + (q.revCount > 1 ? q.revCount - 1 : 0), 0);
+                let avgRepetitions = memQuarters.length > 0 ? (memQuarters.reduce((sum, q) => sum + q.revCount, 0) / memQuarters.length).toFixed(1) : 0;
+                let overdueHizbsCount = 0;
+                for (let i = 1; i <= 60; i++) { if (isHizbOverdue(i)) overdueHizbsCount++; }
                 
                 html += `
                 <div class="progress-container">
@@ -477,6 +478,22 @@
                         <div class="progress-bar-fill" style="width: ${percentage}%;"></div>
                     </div>
                 </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-value"><bdi>${toArabicNum(totalRevisions)}</bdi></div>
+                        <div class="stat-label">${t('totalRevisions')}</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value"><bdi>${toArabicNum(avgRepetitions)}</bdi></div>
+                        <div class="stat-label">${t('hifzStrength')}</div>
+                    </div>
+                    <div class="stat-box" style="${overdueHizbsCount > 0 ? 'border-color: var(--danger); background: var(--danger-light);' : ''}">
+                        <div class="stat-value" style="${overdueHizbsCount > 0 ? 'color: var(--danger);' : ''}"><bdi>${toArabicNum(overdueHizbsCount)}</bdi></div>
+                        <div class="stat-label" style="${overdueHizbsCount > 0 ? 'color: var(--danger);' : ''}">${t('overdueCount')}</div>
+                    </div>
+                </div>
+
                 <div style="display:flex; justify-content:flex-end; margin-bottom: 15px;"><button class="btn-outline" onclick="toggleBulkMode()">${isBulkMode ? t('bulkCancel') : t('edit')} ✏️</button></div>`;
             }
 
@@ -562,11 +579,21 @@
         function toggleBulkMode() { isBulkMode = !isBulkMode; if (!isBulkMode) selectedHizbs.clear(); renderApp(); }
         function toggleHizbSelection(hizb) { if (selectedHizbs.has(hizb)) selectedHizbs.delete(hizb); else selectedHizbs.add(hizb); renderApp(); }
         
+        // INCREMENT LOGIC ADDED HERE
         function bulkAction(type, dateVal = null) {
             if (selectedHizbs.size === 0) return;
             if (type === 'date' && !dateVal) return; 
             const targetTime = type === 'today' ? Date.now() : new Date(dateVal).getTime();
-            selectedHizbs.forEach(h => { state.quarters.filter(q => q.hizb === h).forEach(q => { if (q.revCount === 0) q.revCount = 1; q.lastRevised = targetTime; }); });
+            selectedHizbs.forEach(h => { 
+                state.quarters.filter(q => q.hizb === h).forEach(q => { 
+                    if (q.revCount === 0) {
+                        q.revCount = 1; // Mark as memorized
+                    } else if (q.revCount >= 1 && q.revCount < 11) {
+                        q.revCount += 1; // Mark as revised
+                    }
+                    q.lastRevised = targetTime; 
+                }); 
+            });
             saveState(); toggleBulkMode(); renderApp();
         }
 
@@ -607,14 +634,11 @@
             let rVal = parseInt(document.getElementById('recentInput').value);
             let sVal = parseInt(document.getElementById('seqInput').value);
 
-            // If the user leaves it blank (NaN), use the default. Otherwise, use their exact number (even if it's 0!)
             state.freshnessDays = isNaN(fVal) ? 30 : fVal; 
             state.planConfig.recent = isNaN(rVal) ? 2 : rVal; 
             state.planConfig.seq = isNaN(sVal) ? 4 : sVal; 
             
-            saveState(); 
-            closeModal('settingsModal'); 
-            renderApp(); 
+            saveState(); closeModal('settingsModal'); renderApp(); 
         }
         function runQuickSetup() {
             let target = parseInt(document.getElementById('quickSetupInput').value);
