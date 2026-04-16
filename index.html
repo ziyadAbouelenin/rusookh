@@ -139,6 +139,36 @@
 
         /* ── LTR override ── */
         [dir="ltr"] .settings-row { text-align: left; }
+        /* ── SCHEDULE TAB ── */
+        .sched-form { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 24px; }
+        .sched-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+        .sched-field { display: flex; flex-direction: column; gap: 6px; }
+        .sched-field label { font-size: 13px; font-weight: 600; color: var(--text-muted); }
+        .sched-field select, .sched-field input[type="number"] { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; background: var(--bg); color: var(--text); font-family: inherit; }
+        .sched-legend { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 24px; }
+        .sched-legend-item { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; font-size: 12px; }
+        .sched-legend-item strong { display: block; font-size: 13px; margin-bottom: 4px; color: var(--text); }
+        .sched-legend-item span { color: var(--text-muted); line-height: 1.6; }
+        .sched-table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); }
+        .sched-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 700px; }
+        .sched-table th { background: var(--surface2); padding: 12px 14px; text-align: center; font-weight: 700; font-size: 12px; color: var(--text-muted); border-bottom: 1px solid var(--border); white-space: nowrap; }
+        .sched-table td { padding: 14px 14px; border-bottom: 1px solid var(--border); vertical-align: top; text-align: center; line-height: 1.6; }
+        .sched-table tr:last-child td { border-bottom: none; }
+        .sched-table tr:nth-child(even) td { background: rgba(0,0,0,0.015); }
+        .sched-day { font-weight: 700; font-size: 14px; color: var(--primary); }
+        .sched-cell-main { font-weight: 600; font-size: 13px; color: var(--text); }
+        .sched-cell-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+        .sched-near { color: #059669; }
+        .sched-far  { color: var(--secondary); }
+        .sched-prep-row { display: flex; flex-direction: column; gap: 3px; font-size: 12px; }
+        .sched-prep-tag { display: inline-flex; align-items: center; gap: 4px; background: var(--primary-bg); color: var(--primary); padding: 2px 7px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+        .sched-reading { font-weight: 700; color: #7c3aed; font-size: 14px; }
+        @media print {
+            .tabs, header, .bulk-bar, .modal-overlay, #toast, nav { display: none !important; }
+            .sched-form, .sched-legend { display: none !important; }
+            body { padding: 0; background: white; color: black; }
+            .sched-table { font-size: 11px; }
+        }
     </style>
 </head>
 <body>
@@ -163,6 +193,7 @@
         <div class="tab"        data-tab="tilawah"   id="tabTilawah">ورد القراءة</div>
         <div class="tab"        data-tab="hifz"      id="tabHifz">تتبع الحفظ</div>
         <div class="tab"        data-tab="listening" id="tabListening">ورد الاستماع</div>
+        <div class="tab"        data-tab="schedule"  id="tabSchedule">خطة الحفظ</div>
     </div>
 
     <main id="mainContent"></main>
@@ -343,7 +374,21 @@
         ════════════════════════════════════════════ */
         const dict = {
             ar: {
-                plan:'خطة اليوم', overdue:'متأخرة', tilawah:'ورد القراءة', hifz:'تتبع الحفظ', listening:'ورد الاستماع',
+                plan:'خطة اليوم', overdue:'متأخرة', tilawah:'ورد القراءة', hifz:'تتبع الحفظ', listening:'ورد الاستماع', schedule:'خطة الحفظ',
+                scheduleTitle:'مولّد خطة الحفظ الأسبوعية',
+                scheduleDesc:'أدخل بياناتك لتوليد جدول الحفظ والمراجعة الأسبوعي وفق منهجية الحصون الخمسة.',
+                schedJuzDone:'عدد الأجزاء المحفوظة', schedPagesPerDay:'صفحات الحفظ الجديد يومياً',
+                schedStartDay:'يوم البداية', schedGenerate:'توليد الجدول',
+                schedDayNames:['السبت','الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة'],
+                schedNewMem:'الحفظ الجديد', schedNearRev:'مراجعة قريبة', schedFarRev:'مراجعة بعيدة',
+                schedPrep:'التحضير', schedReading:'القراءة المستمرة',
+                schedPrepPre:'قبلي (ص م)', schedPrepNight:'ليلي (ص ق)', schedPrepWeekly:'أسبوعي (٧ ص)',
+                schedPage:'ص', schedJuz:'الجزء', schedPages:'صفحة', schedOf:'من',
+                schedNearNote:'الـ ٢٠ صفحة السابقة للصفحة المحفوظة',
+                schedFarNote:'جزآن من المحفوظ القديم يومياً', schedReadNote:'٤٠ صفحة قراءة يومية',
+                schedPrepNote:'قراءة صفحة الحفظ ١٥ دقيقة قبل الحفظ / قبل النوم / الأسبوع القادم',
+                schedExport:'تصدير PDF', schedReset:'مسح',
+                schedDayStart:['السبت','الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة'],
                 export:'تصدير ⬇', import:'استيراد ⬆', langToggle:'EN', hizb:'الحزب', juz:'الجزء', read:'تمت القراءة',
                 listenedText:'تم الاستماع', recent:'المراجعة القريبة', seq:'المراجعة البعيدة', done:'إتمام',
                 khatmaTracker:'تتبع الختمة', newKhatma:'بدء ختمة جديدة',
@@ -381,7 +426,21 @@
                 tutClose:'حسناً، فهمت'
             },
             en: {
-                plan:'Plan', overdue:'Overdue', tilawah:'Daily Read', hifz:'Hifz Tracker', listening:'Daily Listen',
+                plan:'Plan', overdue:'Overdue', tilawah:'Daily Read', hifz:'Hifz Tracker', listening:'Daily Listen', schedule:'Schedule',
+                scheduleTitle:'Weekly Memorization Schedule Generator',
+                scheduleDesc:'Enter your details to generate a weekly Hifz & Revision schedule based on the 5 Fortresses method.',
+                schedJuzDone:'Juz already memorized', schedPagesPerDay:'New pages to memorize per day',
+                schedStartDay:'Start day', schedGenerate:'Generate Schedule',
+                schedDayNames:['Sat','Sun','Mon','Tue','Wed','Thu','Fri'],
+                schedNewMem:'New Memorization', schedNearRev:'Near Review', schedFarRev:'Far Review',
+                schedPrep:'Preparation', schedReading:'Continuous Reading',
+                schedPrepPre:'Pre (ص م)', schedPrepNight:'Nightly (ص ق)', schedPrepWeekly:'Weekly (٧ ص)',
+                schedPage:'p.', schedJuz:'Juz', schedPages:'pages', schedOf:'of',
+                schedNearNote:'20 pages immediately before today\'s memorized page',
+                schedFarNote:'2 Juz from old memorization per day', schedReadNote:'40 pages of general reading daily',
+                schedPrepNote:'Read tomorrow\'s page 15min before sleep / today\'s page 15min before memorizing / next week\'s 7 pages once daily',
+                schedExport:'Print / Export', schedReset:'Reset',
+                schedDayStart:['Saturday','Sunday','Monday','Tuesday','Wednesday','Thursday','Friday'],
                 export:'Export ⬇', import:'Import ⬆', langToggle:'AR', hizb:'Hizb', juz:'Juz', read:'Read',
                 listenedText:'Listened', recent:'Near Revision', seq:'Far Revision', done:'Done',
                 khatmaTracker:'Khatma Tracker', newKhatma:'New Khatma',
@@ -603,6 +662,178 @@
         }
 
         /* ════════════════════════════════════════════
+           RENDER: SCHEDULE TAB
+        ════════════════════════════════════════════ */
+        // Schedule state (not persisted — generated on demand)
+        let schedState = { juzDone: 15, pagesPerDay: 1, startDayIdx: 0 };
+
+        function renderSchedule(container) {
+            const lang = state.lang;
+            const isAr = lang === 'ar';
+            const days = t('schedDayNames');
+            const startOptions = t('schedDayStart');
+
+            container.innerHTML = `
+            <div class="sched-form">
+                <h2 class="section-title" style="margin-bottom:12px;">${t('scheduleTitle')}</h2>
+                <p style="font-size:13px;color:var(--text-muted);margin-bottom:20px;line-height:1.7;">${t('scheduleDesc')}</p>
+                <div class="sched-form-grid">
+                    <div class="sched-field">
+                        <label>${t('schedJuzDone')}</label>
+                        <input type="number" id="schedJuzInput" min="0" max="29" value="${schedState.juzDone}" style="width:100%;">
+                    </div>
+                    <div class="sched-field">
+                        <label>${t('schedPagesPerDay')}</label>
+                        <input type="number" id="schedPPDInput" min="1" max="10" value="${schedState.pagesPerDay}" style="width:100%;">
+                    </div>
+                    <div class="sched-field">
+                        <label>${t('schedStartDay')}</label>
+                        <select id="schedDayInput">
+                            ${startOptions.map((d,i) => `<option value="${i}" ${i===schedState.startDayIdx?'selected':''}>${d}</option>`).join('')}
+                        </select>
+                    </div>
+                </div>
+                <div style="display:flex;gap:10px;">
+                    <button class="btn-primary" style="flex:1;" data-action="generateSchedule">${t('schedGenerate')}</button>
+                    <button class="btn-outline" data-action="resetSchedule">${t('schedReset')}</button>
+                </div>
+            </div>
+            <div id="schedOutput"></div>`;
+
+            // If we have a previous schedule, re-render it
+            if (schedState.generated) buildScheduleTable(document.getElementById('schedOutput'));
+        }
+
+        function buildScheduleTable(output) {
+            const isAr = state.lang === 'ar';
+            const juzDone = schedState.juzDone;
+            const ppd     = schedState.pagesPerDay;   // new pages per day
+            const startIdx = schedState.startDayIdx;
+            const days     = t('schedDayNames');
+            const PAGES_PER_JUZ = 20; // standard: 1 Juz = 20 pages (Mushaf Madinah)
+
+            // Far revision: 2 juz per day, cycling through memorized juz
+            // Day 0 starts from juz 1 & 2, day 1 from juz 3 & 4, etc.
+            // If juzDone < 2, we can't do far revision
+            const canFarRev = juzDone >= 2;
+
+            // Near revision: 20 pages preceding the current new page
+            // New page for day d = (startingPage + d*ppd) to (startingPage + (d+1)*ppd - 1)
+            // where startingPage = juzDone * PAGES_PER_JUZ + 1
+            const startPage = juzDone * PAGES_PER_JUZ + 1;
+
+            // Next week's 7 pages (for weekly prep): pages starting from startPage + 7*ppd
+            const nextWeekStart = startPage + 7 * ppd;
+
+            let rows = '';
+            for (let d = 0; d < 7; d++) {
+                const dayIdx = (startIdx + d) % 7;
+                const dayName = days[dayIdx];
+
+                // New memorization: pages for this day
+                const newPageStart = startPage + d * ppd;
+                const newPageEnd   = newPageStart + ppd - 1;
+                const newPageStr   = ppd === 1
+                    ? `${isAr ? 'ص' : 'p.'} ${toArabicNum(newPageStart)}`
+                    : `${isAr ? 'ص' : 'pp.'} ${toArabicNum(newPageStart)}–${toArabicNum(newPageEnd)}`;
+
+                // Near revision: 20 pages before the new page
+                const nearStart = Math.max(1, newPageStart - 20);
+                const nearEnd   = newPageStart - 1;
+                const nearStr   = nearStart > 0 && nearEnd >= nearStart
+                    ? `${isAr ? 'ص' : 'pp.'} ${toArabicNum(nearStart)}–${toArabicNum(nearEnd)}`
+                    : (isAr ? '—' : '—');
+
+                // Far revision: 2 juz per day (juz index cycles)
+                let farStr = '—';
+                if (canFarRev) {
+                    const farJuz1 = ((d * 2) % juzDone) + 1;
+                    const farJuz2 = ((d * 2 + 1) % juzDone) + 1;
+                    farStr = farJuz1 === farJuz2
+                        ? `${t('schedJuz')} ${toArabicNum(farJuz1)}`
+                        : `${t('schedJuz')} ${toArabicNum(farJuz1)} & ${toArabicNum(farJuz2)}`;
+                }
+
+                // Preparation
+                const prepNextPage = newPageStart + ppd; // tomorrow's page
+                const prepPreStr  = newPageStr;           // today's page, 15min before
+                const prepNightStr = `${isAr ? 'ص' : 'p.'} ${toArabicNum(prepNextPage)}`;
+                const prepWeeklyStr = `${isAr ? 'ص' : 'pp.'} ${toArabicNum(nextWeekStart)}–${toArabicNum(nextWeekStart + 7*ppd - 1)}`;
+
+                // Reading
+                const readStr = isAr ? '٤٠ صفحة' : '40 pages';
+
+                rows += `<tr>
+                    <td><span class="sched-day">${dayName}</span></td>
+                    <td><span class="sched-cell-main">${newPageStr}</span></td>
+                    <td><span class="sched-cell-main sched-near">${nearStr}</span></td>
+                    <td><span class="sched-cell-main sched-far">${farStr}</span></td>
+                    <td>
+                        <div class="sched-prep-row">
+                            <span class="sched-prep-tag">ص م</span> ${prepPreStr}
+                            <span class="sched-prep-tag">ص ق</span> ${prepNightStr}
+                            <span class="sched-prep-tag">٧ ص</span> ${prepWeeklyStr}
+                        </div>
+                    </td>
+                    <td><span class="sched-reading">${readStr}</span></td>
+                </tr>`;
+            }
+
+            output.innerHTML = `
+            <div class="sched-legend">
+                <div class="sched-legend-item">
+                    <strong>📖 ${t('schedNearRev')}</strong>
+                    <span>${t('schedNearNote')}</span>
+                </div>
+                <div class="sched-legend-item">
+                    <strong>🔄 ${t('schedFarRev')}</strong>
+                    <span>${t('schedFarNote')}</span>
+                </div>
+                <div class="sched-legend-item">
+                    <strong>🌙 ${t('schedPrep')}</strong>
+                    <span>${t('schedPrepNote')}</span>
+                </div>
+                <div class="sched-legend-item">
+                    <strong>📚 ${t('schedReading')}</strong>
+                    <span>${t('schedReadNote')}</span>
+                </div>
+            </div>
+            <div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
+                <button class="btn-outline" onclick="window.print()" style="font-size:13px;">🖨️ ${t('schedExport')}</button>
+            </div>
+            <div class="sched-table-wrap">
+                <table class="sched-table">
+                    <thead>
+                        <tr>
+                            <th>${isAr ? 'اليوم' : 'Day'}</th>
+                            <th>📖 ${t('schedNewMem')}</th>
+                            <th>🔁 ${t('schedNearRev')}</th>
+                            <th>🔄 ${t('schedFarRev')}</th>
+                            <th>🌙 ${t('schedPrep')}</th>
+                            <th>📚 ${t('schedReading')}</th>
+                        </tr>
+                    </thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            </div>`;
+        }
+
+        function generateSchedule() {
+            const juz = parseInt(document.getElementById('schedJuzInput').value);
+            const ppd = parseInt(document.getElementById('schedPPDInput').value);
+            const day = parseInt(document.getElementById('schedDayInput').value);
+            if (isNaN(juz) || juz < 0 || juz > 29) return showToast(state.lang === 'ar' ? 'أدخل عدد أجزاء صحيحاً (0-29)' : 'Enter a valid Juz count (0-29)');
+            if (isNaN(ppd) || ppd < 1 || ppd > 10) return showToast(state.lang === 'ar' ? 'أدخل عدد صفحات يومي صحيح (1-10)' : 'Enter valid daily pages (1-10)');
+            schedState = { juzDone: juz, pagesPerDay: ppd, startDayIdx: day, generated: true };
+            buildScheduleTable(document.getElementById('schedOutput'));
+        }
+
+        function resetSchedule() {
+            schedState = { juzDone: 15, pagesPerDay: 1, startDayIdx: 0, generated: false };
+            renderSchedule(document.getElementById('mainContent'));
+        }
+
+        /* ════════════════════════════════════════════
            RENDER: PLAN TAB
         ════════════════════════════════════════════ */
         function renderPlan(container) {
@@ -782,6 +1013,8 @@
             else if (action === 'resetTilawah')  resetTilawah();
             else if (action === 'toggleListening') { toggleListening(hizb); }
             else if (action === 'playAudio')  playHizbAudio(hizb);
+            else if (action === 'generateSchedule') generateSchedule();
+            else if (action === 'resetSchedule')    resetSchedule();
         });
 
         /* ════════════════════════════════════════════
@@ -1059,7 +1292,7 @@
             document.getElementById('importBtn').innerText       = t('import');
 
             // Tabs
-            ['plan','overdue','tilawah','hifz','listening'].forEach(tab => {
+            ['plan','overdue','tilawah','hifz','listening','schedule'].forEach(tab => {
                 const el = document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1));
                 if (el) el.innerText = t(tab);
             });
@@ -1086,6 +1319,7 @@
             else if (currentTab === 'tilawah')   renderTilawah(main);
             else if (currentTab === 'hifz')      renderGrid(main, 'all');
             else if (currentTab === 'listening') renderListening(main);
+            else if (currentTab === 'schedule')  renderSchedule(main);
 
             // Bulk bar visibility
             document.getElementById('bulkBar').style.display = isBulkMode ? 'flex' : 'none';
