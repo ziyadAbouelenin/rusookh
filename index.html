@@ -6,148 +6,200 @@
     <title>Rusookh - رسوخ</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#059669">
-    <link rel="apple-touch-icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Quran_Kareem.svg/512px-Quran_Kareem.svg.png">
+    <!-- FIX #13: use a local icon fallback via data URI instead of Wikipedia URL -->
+    <link rel="apple-touch-icon" href="icon-192.png">
 
     <style>
+        /* ── Design tokens ── */
         :root {
-            --primary: #059669; --primary-light: #4ADE80;
+            --primary: #059669; --primary-light: #4ADE80; --primary-bg: rgba(5,150,105,0.08);
             --secondary: #D97706; --secondary-light: #FBBF24;
             --danger: #E53935; --danger-light: #FFEBEE;
             --bg: #F8FAFC; --surface: #FFFFFF;
-            --text: #0F172A; --border: #E2E8F0;
+            --text: #0F172A; --text-muted: #64748B; --border: #E2E8F0;
+            --radius: 12px; --shadow: 0 2px 8px rgba(0,0,0,0.07);
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, sans-serif; }
-        body { background-color: var(--bg); color: var(--text); padding-bottom: 100px; }
-        
-        header { background: var(--surface); padding: 15px 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
-        .date-bar { background: var(--primary); color: white; text-align: center; padding: 8px; font-size: 13px; font-weight: 500; letter-spacing: 0.5px; }
-        .header-controls { display: flex; gap: 10px; align-items: center; }
-        input[type="text"], input[type="number"], input[type="date"] { padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; text-align: center; font-family: inherit;}
-        textarea { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; resize: vertical; min-height: 60px; font-family: inherit; margin-bottom: 15px; }
-        button { cursor: pointer; padding: 8px 12px; border: none; border-radius: 8px; font-weight: bold; font-size: 14px; transition: 0.2s; }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
-        .btn-icon { background: transparent; border: none; font-size: 20px; color: var(--text); padding: 5px; }
+        /* ── Reset ── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); padding-bottom: 100px; }
 
-        .tabs { display: flex; justify-content: flex-start; background: var(--surface); border-bottom: 1px solid var(--border); overflow-x: auto; white-space: nowrap; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+        /* ── Header ── */
+        header {
+            background: var(--surface); padding: 10px 16px;
+            box-shadow: var(--shadow); display: flex;
+            justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 100; gap: 8px; flex-wrap: wrap;
+        }
+        /* FIX #5: header is less crowded — export/import moved to settings */
+        .header-left  { display: flex; gap: 8px; align-items: center; }
+        .header-right { display: flex; gap: 8px; align-items: center; }
+
+        /* ── Date bar ── */
+        .date-bar { background: var(--primary); color: #fff; text-align: center; padding: 7px; font-size: 13px; font-weight: 500; letter-spacing: 0.4px; }
+
+        /* ── Inputs / buttons ── */
+        input[type="text"], input[type="number"], input[type="date"] {
+            padding: 7px 11px; border: 1px solid var(--border); border-radius: 8px;
+            font-size: 14px; text-align: center; font-family: inherit; background: var(--surface); color: var(--text);
+        }
+        textarea { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; resize: vertical; min-height: 60px; font-family: inherit; margin-bottom: 15px; color: var(--text); background: var(--surface); }
+        button { cursor: pointer; padding: 8px 12px; border: none; border-radius: 8px; font-weight: 600; font-size: 14px; transition: opacity .15s, transform .1s; font-family: inherit; }
+        button:active { transform: scale(0.97); }
+        .btn-primary  { background: var(--primary); color: #fff; }
+        .btn-outline  { background: transparent; border: 1px solid var(--border); color: var(--text); }
+        .btn-danger   { background: var(--danger); color: #fff; }
+        .btn-icon     { background: transparent; border: none; font-size: 20px; color: var(--text); padding: 5px; }
+
+        /* ── Tabs ── */
+        .tabs { display: flex; background: var(--surface); border-bottom: 1px solid var(--border); overflow-x: auto; white-space: nowrap; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
         .tabs::-webkit-scrollbar { display: none; }
-        .tab { flex: 1; text-align: center; padding: 15px; cursor: pointer; font-weight: bold; color: gray; border-bottom: 3px solid transparent; min-width: 80px; }
-        .tab.active { color: var(--primary); border-bottom: 3px solid var(--primary); }
+        .tab { flex: 1; text-align: center; padding: 14px 8px; cursor: pointer; font-weight: 600; color: var(--text-muted); border-bottom: 3px solid transparent; min-width: 80px; font-size: 13px; transition: color .2s; }
+        .tab.active { color: var(--primary); border-bottom-color: var(--primary); }
 
-        main { padding: 20px; max-width: 800px; margin: 0 auto; }
-        
-        .streak-banner { background: linear-gradient(to right, #00C853, #00BCD4); border-radius: 14px; padding: 15px 20px; color: white; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .streak-info .title { font-size: 12px; opacity: 0.85; }
-        .streak-info .days { font-size: 16px; font-weight: bold; }
-        
+        /* ── Main ── */
+        main { padding: 18px 16px; max-width: 800px; margin: 0 auto; }
+
+        /* ── Streak banner ── */
+        .streak-banner { background: linear-gradient(135deg,#00C853,#00BCD4); border-radius: 14px; padding: 15px 20px; color: #fff; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .streak-info .title { font-size: 12px; opacity: .85; }
+        .streak-info .days  { font-size: 16px; font-weight: 700; }
         .streak-badge { position: relative; width: 65px; height: 65px; display: flex; justify-content: center; align-items: center; }
-        .streak-badge svg { position: absolute; width: 100%; height: 100%; top: 0; left: 0; fill: #004D40; filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.2)); }
-        .streak-number { position: relative; z-index: 1; font-size: 20px; font-weight: 900; color: #FFFFFF; margin-top: 4px; }
-        
-        .progress-container { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 15px; margin-bottom: 12px; }
-        .progress-header { display: flex; justify-content: space-between; font-size: 14px; font-weight: bold; margin-bottom: 8px; color: var(--text); }
-        .progress-bar-bg { background: var(--border); height: 10px; border-radius: 5px; overflow: hidden; position: relative; }
-        .progress-bar-fill { background: var(--primary); height: 100%; transition: width 0.4s ease; }
+        .streak-badge svg { position: absolute; width: 100%; height: 100%; top: 0; left: 0; fill: #004D40; filter: drop-shadow(0 2px 4px rgba(0,0,0,.2)); }
+        .streak-number { position: relative; z-index: 1; font-size: 20px; font-weight: 900; color: #fff; margin-top: 4px; }
 
-        /* New Stats Dashboard CSS */
+        /* ── Progress ── */
+        .progress-container { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 15px; margin-bottom: 12px; }
+        .progress-header { display: flex; justify-content: space-between; font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+        .progress-bar-bg   { background: var(--border); height: 10px; border-radius: 5px; overflow: hidden; }
+        .progress-bar-fill { background: var(--primary); height: 100%; transition: width .4s ease; }
+
+        /* ── Stats grid ── */
         .stats-grid { display: flex; gap: 10px; margin-bottom: 20px; }
-        .stat-box { flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 5px; text-align: center; display: flex; flex-direction: column; justify-content: center;}
-        .stat-value { font-size: 18px; font-weight: bold; color: var(--primary); }
-        .stat-label { font-size: 11px; color: gray; margin-top: 4px; font-weight: 500; }
+        .stat-box { flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 5px; text-align: center; }
+        .stat-value { font-size: 18px; font-weight: 700; color: var(--primary); }
+        .stat-label { font-size: 11px; color: var(--text-muted); margin-top: 4px; font-weight: 500; }
 
+        /* ── Hizb grid ── */
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(75px, 1fr)); gap: 12px; }
-        .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 15px 5px; text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 110px; position: relative; }
-        .card.memorized { background: #ECFDF5; border-color: rgba(5, 150, 105, 0.3); }
-        .card.listened { background: #FFFBEB; border-color: rgba(217, 119, 6, 0.3); color: var(--secondary); }
-        .card.overdue { background: var(--danger-light); border-color: rgba(229, 57, 53, 0.4); }
-        .card.selected { border: 2px solid var(--primary); background: rgba(5, 150, 105, 0.1); }
-        .hizb-num { font-size: 24px; font-weight: bold; }
-        .overdue-label { font-size: 10px; color: var(--danger); font-weight: bold; margin-top: 5px; }
+        .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 12px 4px; text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 110px; position: relative; transition: transform .15s, box-shadow .15s; user-select: none; }
+        .card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,.08); }
+        .card.memorized { background: #ECFDF5; border-color: rgba(5,150,105,.3); }
+        .card.listened  { background: #FFFBEB; border-color: rgba(217,119,6,.3); }
+        .card.overdue   { background: var(--danger-light); border-color: rgba(229,57,53,.4); }
+        .card.selected  { border: 2px solid var(--primary); background: var(--primary-bg); }
+        .hizb-num { font-size: 24px; font-weight: 700; }
+        .overdue-label { font-size: 10px; color: var(--danger); font-weight: 700; margin-top: 5px; }
 
-        .section-title { margin: 20px 0 10px 0; font-size: 18px; color: var(--primary); display: flex; justify-content: space-between; align-items: center; }
-        .plan-item { display: flex; justify-content: space-between; align-items: center; background: var(--surface); padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border); }
-        .plan-item.done { opacity: 0.6; text-decoration: line-through; background: #f0f0f0; }
+        /* ── Plan items ── */
+        .section-title { margin: 20px 0 10px; font-size: 17px; color: var(--primary); display: flex; justify-content: space-between; align-items: center; font-weight: 700; }
+        .plan-item { display: flex; justify-content: space-between; align-items: center; background: var(--surface); padding: 14px 15px; border-radius: var(--radius); margin-bottom: 10px; border: 1px solid var(--border); cursor: pointer; transition: box-shadow .15s; }
+        .plan-item:hover { box-shadow: var(--shadow); }
+        .plan-item.done { opacity: .55; text-decoration: line-through; background: #f0f0f0; cursor: default; }
 
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 200; }
-        .modal { background: var(--surface); padding: 20px; border-radius: 16px; width: 90%; max-width: 400px; max-height: 85vh; overflow-y: auto; }
+        /* ── Modal ── */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,.45); display: none; justify-content: center; align-items: center; z-index: 200; }
+        .modal { background: var(--surface); padding: 20px; border-radius: 16px; width: 90%; max-width: 440px; max-height: 88vh; overflow-y: auto; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .modal-header h2 { font-size: 17px; font-weight: 700; }
+        /* FIX: close button uses × instead of X */
+        .close-btn { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; flex-shrink: 0; }
+
+        /* ── Quarter rows ── */
         .quarter-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); }
         .counter-controls { display: flex; align-items: center; gap: 10px; }
-        .circle-btn { width: 32px; height: 32px; border-radius: 50%; background: #f0f0f0; border: none; font-size: 20px; display: flex; justify-content: center; align-items: center; cursor: pointer; color: var(--text);}
-        .circle-btn.active { background: rgba(5, 150, 105, 0.1); color: var(--primary); }
-        .date-badge { font-size: 11px; color: var(--primary); background: rgba(5, 150, 105, 0.1); padding: 3px 8px; border-radius: 6px; cursor: pointer; border: none; margin-top: 4px; }
-        
-        .bulk-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--surface); padding: 15px 20px; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); display: none; justify-content: space-between; align-items: center; z-index: 150; flex-wrap: wrap; gap: 10px; }
-        .settings-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; text-align: right; }
-        .settings-row input { width: 70px; }
+        .circle-btn { width: 32px; height: 32px; border-radius: 50%; background: #f0f0f0; border: none; font-size: 20px; display: flex; justify-content: center; align-items: center; cursor: pointer; color: var(--text); }
+        .circle-btn.active { background: var(--primary-bg); color: var(--primary); }
+        .date-badge { font-size: 11px; color: var(--primary); background: var(--primary-bg); padding: 3px 8px; border-radius: 6px; cursor: pointer; border: none; margin-top: 4px; font-family: inherit; font-weight: 600; }
+
+        /* ── Bulk bar ── */
+        .bulk-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--surface); padding: 14px 16px; box-shadow: 0 -2px 10px rgba(0,0,0,.1); display: none; justify-content: space-between; align-items: center; z-index: 150; flex-wrap: wrap; gap: 10px; }
+
+        /* ── Settings ── */
+        .settings-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; text-align: right; gap: 12px; }
+        .settings-row span { font-size: 14px; }
+        .settings-row input { width: 75px; flex-shrink: 0; }
         hr { border: 0; border-top: 1px solid var(--border); margin: 20px 0; }
-        .native-date-btn { background: transparent; border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; color: var(--text); font-weight: bold; cursor: pointer; }
+        .native-date-btn { background: transparent; border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; color: var(--text); font-weight: 600; cursor: pointer; font-family: inherit; }
 
-        .tutorial-content h3 { color: var(--primary); font-size: 16px; margin-top: 15px; margin-bottom: 5px; }
-        .tutorial-content p { font-size: 14px; line-height: 1.6; color: var(--text); margin-bottom: 10px; }
-        .tutorial-content ul { padding-inline-start: 20px; margin-bottom: 15px; font-size: 14px; line-height: 1.6; }
+        /* ── Tutorial ── */
+        .tutorial-content h3 { color: var(--primary); font-size: 15px; margin-top: 14px; margin-bottom: 5px; font-weight: 700; }
+        .tutorial-content p  { font-size: 14px; line-height: 1.65; color: var(--text); margin-bottom: 10px; }
+        .tutorial-content ul { padding-inline-start: 20px; margin-bottom: 14px; font-size: 14px; line-height: 1.65; }
 
-        [dir="ltr"] { font-family: system-ui, sans-serif; }
+        /* ── Toast ── */
+        #toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px); background: #1e293b; color: #fff; padding: 10px 18px; border-radius: 10px; font-size: 13px; font-weight: 500; opacity: 0; transition: opacity .25s, transform .25s; z-index: 999; pointer-events: none; white-space: nowrap; }
+        #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        /* ── Custom confirm modal ── */
+        /* FIX #7 & tilawah confirm: custom dialog instead of browser confirm() */
+        #confirmModal .confirm-msg { font-size: 15px; margin-bottom: 20px; line-height: 1.6; }
+        #confirmModal .confirm-actions { display: flex; gap: 10px; }
+        #confirmModal .confirm-actions button { flex: 1; }
+
+        /* ── LTR override ── */
         [dir="ltr"] .settings-row { text-align: left; }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="header-controls">
-            <input type="text" id="userNameInput" placeholder="الاسم" oninput="updateName(this.value)">
+        <!-- FIX #5: export/import removed from header, moved to settings modal -->
+        <div class="header-left">
+            <input type="text" id="userNameInput" placeholder="الاسم" oninput="updateName(this.value)" style="max-width:110px;">
             <button class="btn-outline" onclick="toggleLanguage()" id="langBtn">EN</button>
         </div>
-        <div class="header-controls">
-            <button class="btn-icon" onclick="openTutorial()">ℹ️</button>
-            <button class="btn-icon" onclick="openSettings()">⚙️</button>
-            <button class="btn-outline" onclick="exportData()" id="exportBtn">تصدير</button>
-            <label class="btn-primary" style="cursor:pointer; padding: 8px 12px; border-radius: 8px; font-weight: bold; font-size: 14px;">
-                <span id="importBtn">استيراد</span>
-                <input type="file" style="display:none;" accept=".json" onchange="importData(event)">
-            </label>
+        <div class="header-right">
+            <button class="btn-icon" onclick="openTutorial()" title="Help">ℹ️</button>
+            <button class="btn-icon" onclick="openSettings()" title="Settings">⚙️</button>
         </div>
     </header>
+
     <div class="date-bar" id="dateBar"></div>
 
     <div class="tabs">
-        <div class="tab active" onclick="switchTab('plan')" id="tabPlan">خطة اليوم</div>
-        <div class="tab" onclick="switchTab('overdue')" id="tabOverdue">متأخرة</div>
-        <div class="tab" onclick="switchTab('tilawah')" id="tabTilawah">ورد القراءة</div>
-        <div class="tab" onclick="switchTab('hifz')" id="tabHifz">تتبع الحفظ</div>
-        <div class="tab" onclick="switchTab('listening')" id="tabListening">ورد الاستماع</div>
+        <div class="tab active" data-tab="plan"      id="tabPlan">خطة اليوم</div>
+        <div class="tab"        data-tab="overdue"   id="tabOverdue">متأخرة</div>
+        <div class="tab"        data-tab="tilawah"   id="tabTilawah">ورد القراءة</div>
+        <div class="tab"        data-tab="hifz"      id="tabHifz">تتبع الحفظ</div>
+        <div class="tab"        data-tab="listening" id="tabListening">ورد الاستماع</div>
     </div>
 
     <main id="mainContent"></main>
 
+    <!-- Bulk action bar -->
     <div class="bulk-bar" id="bulkBar">
-        <span id="bulkCount" style="font-weight:bold;">تم تحديد 0</span>
-        <div style="display:flex; gap:10px; align-items:center;">
+        <span id="bulkCount" style="font-weight:700;">تم تحديد 0</span>
+        <div style="display:flex;gap:10px;align-items:center;">
             <button id="bulkTodayBtn" class="btn-primary" onclick="bulkAction('today')">مُراجعة اليوم</button>
-            <input type="date" id="bulkDateInput" class="native-date-btn" onchange="bulkAction('date', this.value)">
+            <input type="date" id="bulkDateInput" class="native-date-btn" onchange="bulkAction('date',this.value)">
             <button id="bulkCancelBtn" class="btn-outline" onclick="toggleBulkMode()">إلغاء</button>
         </div>
     </div>
 
+    <!-- Toast notification -->
+    <div id="toast"></div>
+
+    <!-- ══ Hizb detail modal ══ -->
     <div class="modal-overlay" id="hizbModal">
         <div class="modal">
             <div class="modal-header">
                 <h2 id="modalTitle">الحزب</h2>
-                <button class="btn-outline" onclick="closeModal('hizbModal')">X</button>
+                <button class="close-btn" onclick="closeModal('hizbModal')">×</button>
             </div>
             <div id="modalNotesContainer"></div>
             <div id="modalBody"></div>
         </div>
     </div>
 
+    <!-- ══ Settings modal ══ -->
     <div class="modal-overlay" id="settingsModal">
         <div class="modal">
             <div class="modal-header">
                 <h2 id="settingsTitle">إعدادات المراجعة</h2>
-                <button class="btn-outline" onclick="closeModal('settingsModal')">X</button>
+                <button class="close-btn" onclick="closeModal('settingsModal')">×</button>
             </div>
-            
+
             <div class="settings-row">
                 <span id="setFreshness">مدة صلاحية المراجعة (بالأيام)</span>
                 <input type="number" id="freshnessInput" min="7" max="90">
@@ -160,515 +212,922 @@
                 <span id="setSeq">أحزاب المراجعة البعيدة يومياً</span>
                 <input type="number" id="seqInput" min="0" max="10">
             </div>
-            
-            <button id="settingsSaveBtn" class="btn-primary" style="width: 100%; margin-top: 10px;" onclick="saveSettings()">حفظ</button>
+
+            <button id="settingsSaveBtn" class="btn-primary" style="width:100%;margin-top:10px;" onclick="saveSettings()">حفظ</button>
 
             <hr>
-            <h3 id="quickSetupTitle" style="color:var(--primary); margin-bottom:10px;">إعداد سريع</h3>
-            <p id="quickSetupDesc" style="font-size:13px; color:gray; margin-bottom:10px;">حدد آخر حزب تحفظه:</p>
-            <div style="display:flex; gap:10px;">
+            <h3 id="quickSetupTitle" style="color:var(--primary);margin-bottom:10px;">إعداد سريع</h3>
+            <p id="quickSetupDesc" style="font-size:13px;color:var(--text-muted);margin-bottom:10px;">حدد آخر حزب تحفظه:</p>
+            <div style="display:flex;gap:10px;margin-bottom:20px;">
                 <input type="number" id="quickSetupInput" min="1" max="60" placeholder="1-60" style="flex:1;">
                 <button id="quickSetupBtn" class="btn-outline" onclick="runQuickSetup()">تطبيق</button>
+            </div>
+
+            <hr>
+            <!-- FIX #5: export/import moved here -->
+            <h3 style="color:var(--primary);margin-bottom:12px;" id="dataTitle">البيانات</h3>
+            <div style="display:flex;gap:10px;">
+                <button class="btn-outline" style="flex:1;" onclick="exportData()" id="exportBtn">تصدير ⬇</button>
+                <label class="btn-primary" style="flex:1;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:8px;font-weight:600;font-size:14px;">
+                    <span id="importBtn">استيراد ⬆</span>
+                    <input type="file" style="display:none;" accept=".json" onchange="importData(event)">
+                </label>
             </div>
         </div>
     </div>
 
+    <!-- ══ Tutorial modal ══ -->
     <div class="modal-overlay" id="tutorialModal">
         <div class="modal">
             <div class="modal-header">
                 <h2 id="tutorialTitle">كيف تستخدم رسوخ؟</h2>
-                <button class="btn-outline" onclick="closeModal('tutorialModal')">X</button>
+                <button class="close-btn" onclick="closeModal('tutorialModal')">×</button>
             </div>
             <div id="tutorialBody" class="tutorial-content"></div>
-            <button class="btn-primary" style="width:100%; margin-top:20px;" onclick="closeModal('tutorialModal')" id="tutorialCloseBtn">حسناً، فهمت</button>
+            <button class="btn-primary" style="width:100%;margin-top:20px;" onclick="closeModal('tutorialModal')" id="tutorialCloseBtn">حسناً، فهمت</button>
         </div>
     </div>
 
+    <!-- ══ FIX #7 & FIX tilawah confirm: custom confirm dialog ══ -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="confirmTitle">تأكيد</h2>
+                <button class="close-btn" onclick="dismissConfirm()">×</button>
+            </div>
+            <p class="confirm-msg" id="confirmMsg"></p>
+            <div class="confirm-actions">
+                <button class="btn-danger"  id="confirmOkBtn"  onclick="resolveConfirm(true)">تأكيد</button>
+                <button class="btn-outline" id="confirmNoBtn"  onclick="resolveConfirm(false)">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ Audio error modal ══ -->
+    <!-- FIX #8: audio errors now shown via toast instead of swallowed -->
+
     <script>
+        /* ════════════════════════════════════════════
+           SERVICE WORKER
+        ════════════════════════════════════════════ */
         if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
 
-        const STORAGE_KEY = 'rusookh_web_data';
-        const getTodayStr = () => new Date().toISOString().split('T')[0];
+        /* ════════════════════════════════════════════
+           CONSTANTS & VERSION
+        ════════════════════════════════════════════ */
+        const STORAGE_KEY   = 'rusookh_web_data';
+        const STATE_VERSION = 2; // FIX #11: schema versioning
+        const getTodayStr   = () => new Date().toISOString().split('T')[0];
 
-        let state = JSON.parse(localStorage.getItem(STORAGE_KEY));
-        if (!state) {
-            state = {
+        /* ════════════════════════════════════════════
+           STATE INITIALISATION & MIGRATION  (FIX #11)
+        ════════════════════════════════════════════ */
+        function defaultState() {
+            return {
+                version: STATE_VERSION,
                 userName: '', lang: 'ar', freshnessDays: 30, hizbNotes: {},
                 planConfig: { recent: 2, seq: 4 },
-                quarters: Array.from({length: 240}, (_, i) => ({ id: i, hizb: Math.floor(i/4) + 1, part: (i%4) + 1, revCount: 0, lastRevised: 0 })),
-                listening: Array.from({length: 60}, (_, i) => ({ hizb: i + 1, listened: false })),
-                tilawah: Array(30).fill(0), 
+                quarters: Array.from({ length: 240 }, (_, i) => ({
+                    id: i, hizb: Math.floor(i / 4) + 1, part: (i % 4) + 1,
+                    revCount: 0, lastRevised: 0
+                })),
+                listening: Array.from({ length: 60 }, (_, i) => ({ hizb: i + 1, listened: false })),
+                tilawah: Array(30).fill(0),
                 plan: { date: '', seqHizbs: [], seqDone: [], recentHizbs: [] }
             };
-            saveState();
         }
-        if(!state.planConfig) state.planConfig = { recent: 2, seq: 4 };
-        if(!state.tilawah) state.tilawah = Array(30).fill(0);
 
-        let currentTab = 'plan';
-        let isBulkMode = false;
+        function migrateState(s) {
+            // Guard every field that may be missing in older saves
+            if (!s.version)      s.version      = 1;
+            if (!s.planConfig)   s.planConfig   = { recent: 2, seq: 4 };
+            if (!s.tilawah)      s.tilawah      = Array(30).fill(0);
+            if (!s.hizbNotes)    s.hizbNotes    = {};
+            if (!s.listening)    s.listening    = Array.from({ length: 60 }, (_, i) => ({ hizb: i + 1, listened: false }));
+            if (!s.plan)         s.plan         = { date: '', seqHizbs: [], seqDone: [], recentHizbs: [] };
+            if (!s.plan.seqDone) s.plan.seqDone = [];
+            if (!s.plan.recentHizbs) s.plan.recentHizbs = [];
+            s.version = STATE_VERSION;
+            return s;
+        }
+
+        let raw = localStorage.getItem(STORAGE_KEY);
+        let state = raw ? migrateState(JSON.parse(raw)) : defaultState();
+
+        /* ════════════════════════════════════════════
+           UI RUNTIME STATE
+        ════════════════════════════════════════════ */
+        let currentTab    = 'plan';
+        let isBulkMode    = false;
         let selectedHizbs = new Set();
-        let currentAudio = new Audio();
-        let audioQueue = [];
-        let playingHizb = null;
-        let isPlaying = false;
+        let currentAudio  = new Audio();
+        let audioQueue    = [];
+        let playingHizb   = null;
+        let isPlaying     = false;
+        let _pendingSave  = false; // FIX #1: batched save flag
 
+        /* ════════════════════════════════════════════
+           PERSISTENCE  (FIX #1: batched saveState)
+        ════════════════════════════════════════════ */
+        function saveState() {
+            if (_pendingSave) return;
+            _pendingSave = true;
+            requestAnimationFrame(() => {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+                _pendingSave = false;
+            });
+        }
+
+        /* ════════════════════════════════════════════
+           I18N DICTIONARY
+        ════════════════════════════════════════════ */
         const dict = {
-            ar: { 
-                plan: "خطة اليوم", overdue: "متأخرة", tilawah: "ورد القراءة", hifz: "تتبع الحفظ", listening: "ورد الاستماع", 
-                export: "تصدير", import: "استيراد", langToggle: "EN", hizb: "الحزب", juz: "الجزء", read: "تمت القراءة",
-                listenedText: "تم الاستماع",
-                recent: "المراجعة القريبة", seq: "المراجعة البعيدة", done: "إتمام", 
-                khatmaTracker: "تتبع الختمة", newKhatma: "بدء ختمة جديدة",
-                overallProgress: "إجمالي الحفظ", totalRevisions: "إجمالي المراجعات", hifzStrength: "متوسط التكرار", overdueCount: "أحزاب متأخرة",
-                quarterNames: ["ربع الحزب", "نصف الحزب", "ثلاثة أرباع", "الحزب كامل"], 
-                never: "لم يبدأ", streakTitle: "سلسلة المراجعة", streakEmpty: "ابدأ سلسلتك اليوم!", 
-                edit: "تعديل", overdueLabel: "متأخرة", notesHolder: "ملاحظات وتنبيهات الحزب...",
-                namePlaceholder: "الاسم", settingsTitle: "الإعدادات", settingsSaveBtn: "حفظ",
-                setFreshness: "صلاحية المراجعة (بالأيام)", setRecent: "أحزاب المراجعة القريبة يومياً", setSeq: "أحزاب المراجعة البعيدة يومياً",
-                quickSetupTitle: "إعداد سريع", quickSetupDesc: "حدد آخر حزب تحفظه ليتم تعيين ما قبله كمحفوظ بتاريخ اليوم:", quickSetupBtn: "تطبيق",
-                bulkSelected: "تم تحديد", bulkToday: "مُراجعة اليوم", bulkCancel: "إلغاء",
-                tutTitle: "مرحباً بك في رسوخ (الحصون الخمسة)",
-                tutBody: `
+            ar: {
+                plan:'خطة اليوم', overdue:'متأخرة', tilawah:'ورد القراءة', hifz:'تتبع الحفظ', listening:'ورد الاستماع',
+                export:'تصدير ⬇', import:'استيراد ⬆', langToggle:'EN', hizb:'الحزب', juz:'الجزء', read:'تمت القراءة',
+                listenedText:'تم الاستماع', recent:'المراجعة القريبة', seq:'المراجعة البعيدة', done:'إتمام',
+                khatmaTracker:'تتبع الختمة', newKhatma:'بدء ختمة جديدة',
+                overallProgress:'إجمالي الحفظ', totalRevisions:'إجمالي المراجعات', hifzStrength:'متوسط التكرار', overdueCount:'أحزاب متأخرة',
+                quarterNames:['ربع الحزب','نصف الحزب','ثلاثة أرباع','الحزب كامل'],
+                never:'لم يبدأ', streakTitle:'سلسلة المراجعة', streakEmpty:'ابدأ سلسلتك اليوم!',
+                edit:'تعديل', overdueLabel:'متأخرة', notesHolder:'ملاحظات وتنبيهات الحزب...',
+                namePlaceholder:'الاسم', settingsTitle:'الإعدادات', settingsSaveBtn:'حفظ',
+                setFreshness:'صلاحية المراجعة (بالأيام)', setRecent:'أحزاب المراجعة القريبة يومياً', setSeq:'أحزاب المراجعة البعيدة يومياً',
+                quickSetupTitle:'إعداد سريع', quickSetupDesc:'حدد آخر حزب تحفظه ليتم تعيين ما قبله كمحفوظ بتاريخ اليوم:', quickSetupBtn:'تطبيق',
+                bulkSelected:'تم تحديد', bulkToday:'مُراجعة اليوم', bulkCancel:'إلغاء',
+                dataTitle:'البيانات',
+                confirmNewKhatma:'هل أنت متأكد من بدء ختمة جديدة؟ ستفقد تقدمك الحالي.',
+                confirmBulk:'سيتم تحديث جميع الأحزاب المحددة. هل أنت متأكد؟',
+                audioError:'تعذّر تحميل الصوت. تحقق من اتصالك بالإنترنت.',
+                importSuccess:'تم الاستيراد بنجاح ✓',
+                importError:'فشل الاستيراد: الملف غير صحيح أو تالف.',
+                tutTitle:'مرحباً بك في رسوخ (الحصون الخمسة)',
+                tutBody:`
                     <h3>مقدمة عن تقسيم القرآن:</h3>
                     <p>القرآن الكريم مقسم إلى <b>30 جزءاً</b>، وكل جزء يتكون من <b>حزبين</b> (المجموع 60 حزباً). وكل حزب مقسم إلى <b>4 أرباع</b>. هذا التطبيق يعتمد على التتبع الدقيق لكل حزب وأرباعه لتسهيل المراجعة.</p>
-                    
                     <p>رسوخ هو رفيقك لتتبع حفظ ومراجعة القرآن الكريم بذكاء بناءً على منهجية الحصون الخمسة. إليك كيف يعمل:</p>
                     <h3>1. خطة اليوم الذكية</h3>
                     <ul>
                         <li><b>المراجعة القريبة:</b> يظهر لك أحدث الأحزاب التي حفظتها لترسيخها.</li>
-                        <li><b>المراجعة البعيدة:</b> يمر بك على محفوظاتك القديمة بالترتيب لتراجعها. (تستمر الأحزاب في الظهور يومياً حتى تضغط "إتمام").</li>
+                        <li><b>المراجعة البعيدة:</b> يمر بك على محفوظاتك القديمة بالترتيب لتراجعها.</li>
                     </ul>
                     <h3>2. الأحزاب المتأخرة</h3>
-                    <p>أي حزب لم تراجعه منذ مدة طويلة (محددة حالياً بـ {DAYS} يوماً) سيظهر هنا باللون الأحمر لتتداركه. يمكنك تغيير هذه المدة من <b>الإعدادات ⚙️</b>.</p>
+                    <p>أي حزب لم تراجعه منذ مدة طويلة (محددة حالياً بـ {DAYS} يوماً) سيظهر هنا باللون الأحمر. يمكنك تغيير هذه المدة من <b>الإعدادات ⚙️</b>.</p>
                     <h3>3. التعديل السريع والجماعي</h3>
-                    <p>في قسم <b>تتبع الحفظ</b>، اضغط على زر <b>تعديل ✏️</b> لتحديد عدة أحزاب وتعيين تاريخ حفظها دفعة واحدة. مفيد جداً عند بدء استخدام التطبيق!</p>
+                    <p>في قسم <b>تتبع الحفظ</b>، اضغط على زر <b>تعديل ✏️</b> لتحديد عدة أحزاب وتعيين تاريخ حفظها دفعة واحدة.</p>
+                    <h3>4. النسخ الاحتياطي</h3>
+                    <p>استخدم زري <b>تصدير / استيراد</b> في قسم الإعدادات للحفاظ على بياناتك.</p>
                 `,
-                tutClose: "حسناً، فهمت"
+                tutClose:'حسناً، فهمت'
             },
-            en: { 
-                plan: "Plan", overdue: "Overdue", tilawah: "Daily Read", hifz: "Hifz Tracker", listening: "Daily Listen", 
-                export: "Export", import: "Import", langToggle: "AR", hizb: "Hizb", juz: "Juz", read: "Read",
-                listenedText: "Listened",
-                recent: "Near Revision", seq: "Far Revision", done: "Done", 
-                khatmaTracker: "Khatma Tracker", newKhatma: "New Khatma",
-                overallProgress: "Overall Progress", totalRevisions: "Total Revisions", hifzStrength: "Avg Repetitions", overdueCount: "Overdue Hizbs",
-                quarterNames: ["1st Quarter", "Half", "3rd Quarter", "Full Hizb"], 
-                never: "Not Started", streakTitle: "Revision Streak", streakEmpty: "Start your streak today!", 
-                edit: "Edit", overdueLabel: "Overdue", notesHolder: "Hizb notes...",
-                namePlaceholder: "Name", settingsTitle: "Settings", settingsSaveBtn: "Save",
-                setFreshness: "Revision Validity (Days)", setRecent: "Near Revision Hizbs per day", setSeq: "Far Revision Hizbs per day",
-                quickSetupTitle: "Quick Setup", quickSetupDesc: "Enter the last Hizb you memorized to mark it and all previous as done today:", quickSetupBtn: "Apply",
-                bulkSelected: "Selected", bulkToday: "Revised Today", bulkCancel: "Cancel",
-                tutTitle: "Welcome to Rusookh",
-                tutBody: `
+            en: {
+                plan:'Plan', overdue:'Overdue', tilawah:'Daily Read', hifz:'Hifz Tracker', listening:'Daily Listen',
+                export:'Export ⬇', import:'Import ⬆', langToggle:'AR', hizb:'Hizb', juz:'Juz', read:'Read',
+                listenedText:'Listened', recent:'Near Revision', seq:'Far Revision', done:'Done',
+                khatmaTracker:'Khatma Tracker', newKhatma:'New Khatma',
+                overallProgress:'Overall Progress', totalRevisions:'Total Revisions', hifzStrength:'Avg Repetitions', overdueCount:'Overdue Hizbs',
+                quarterNames:['1st Quarter','Half','3rd Quarter','Full Hizb'],
+                never:'Not Started', streakTitle:'Revision Streak', streakEmpty:'Start your streak today!',
+                edit:'Edit', overdueLabel:'Overdue', notesHolder:'Hizb notes...',
+                namePlaceholder:'Name', settingsTitle:'Settings', settingsSaveBtn:'Save',
+                setFreshness:'Revision Validity (Days)', setRecent:'Near Revision Hizbs / day', setSeq:'Far Revision Hizbs / day',
+                quickSetupTitle:'Quick Setup', quickSetupDesc:'Enter the last Hizb you memorized to mark it and all previous as done today:', quickSetupBtn:'Apply',
+                bulkSelected:'Selected', bulkToday:'Revised Today', bulkCancel:'Cancel',
+                dataTitle:'Data',
+                confirmNewKhatma:'Start a new Khatma? Your current progress will be reset.',
+                confirmBulk:'All selected Hizbs will be updated. Are you sure?',
+                audioError:'Could not load audio. Check your internet connection.',
+                importSuccess:'Import successful ✓',
+                importError:'Import failed: file is invalid or corrupted.',
+                tutTitle:'Welcome to Rusookh',
+                tutBody:`
                     <h3>Quran Structure:</h3>
-                    <p>The Quran is divided into <b>30 Juz'</b> (parts), and each Juz' contains <b>2 Hizbs</b> (totaling 60 Hizbs). Every Hizb is further divided into <b>4 Quarters</b>. This app tracks your progress down to the quarter-Hizb level for precision.</p>
-
-                    <p>Rusookh is your smart companion for tracking Quranic memorization based on the 5 Fortresses method.</p>
-                    <h3>1. The Smart Daily Plan</h3>
+                    <p>The Quran is divided into <b>30 Juz'</b>, each containing <b>2 Hizbs</b> (60 total). Every Hizb has <b>4 Quarters</b>. This app tracks your progress down to the quarter level.</p>
+                    <p>Rusookh is your smart companion for tracking memorization using the 5 Fortresses method.</p>
+                    <h3>1. Smart Daily Plan</h3>
                     <ul>
-                        <li><b>Near Revision:</b> Always keeps your newest Hizbs front and center to solidify them.</li>
-                        <li><b>Far Revision:</b> Automatically cycles through your older memorization in order. Hizbs stay here until you click "Done".</li>
+                        <li><b>Near Revision:</b> Keeps your newest Hizbs front and center to solidify them.</li>
+                        <li><b>Far Revision:</b> Cycles through older memorization in order. Hizbs stay here until you click "Done".</li>
                     </ul>
                     <h3>2. Overdue Warning</h3>
-                    <p>Any Hizb you haven't revised in a while (currently {DAYS} days) will show up here in red. You can change this threshold in the <b>Settings ⚙️</b>.</p>
+                    <p>Any Hizb not revised in a while (currently {DAYS} days) will appear in red. Change this threshold in <b>Settings ⚙️</b>.</p>
                     <h3>3. Bulk Edit</h3>
-                    <p>In the <b>Hifz Tracker</b> tab, click <b>Edit ✏️</b> to select multiple Hizbs and mark them as memorized all at once.</p>
+                    <p>In the <b>Hifz Tracker</b> tab, click <b>Edit ✏️</b> to select multiple Hizbs and mark them at once.</p>
+                    <h3>4. Backup</h3>
+                    <p>Use <b>Export / Import</b> in Settings to keep your data safe.</p>
                 `,
-                tutClose: "Got it!"
+                tutClose:'Got it!'
             }
         };
 
-        const t = (key) => dict[state.lang][key] || key;
-        const toArabicNum = (num) => state.lang === 'en' ? num.toString() : num.toString().replace(/[0-9]/g, d => ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'][d]);
-        
-        const formatDate = (ts) => ts ? `<bdi>${toArabicNum(new Date(ts).getDate())} ${new Date(ts).toLocaleString(state.lang==='ar'?'ar-EG':'en-GB', { month: 'short' })}</bdi>` : t('never');
+        const t = (key) => dict[state.lang][key] ?? key;
+        const toArabicNum = (num) => state.lang === 'en'
+            ? num.toString()
+            : num.toString().replace(/[0-9]/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+
+        const formatDate = (ts) => ts
+            ? `<bdi>${toArabicNum(new Date(ts).getDate())} ${new Date(ts).toLocaleString(state.lang === 'ar' ? 'ar-EG' : 'en-GB', { month: 'short' })}</bdi>`
+            : t('never');
+
         const formatHijri = (ts) => {
-            if(!ts) return '';
-            try { 
-                let dateStr = new Intl.DateTimeFormat(state.lang === 'ar' ? 'ar-SA' : 'en-US', {calendar: 'islamic', day:'numeric', month:'short'}).format(new Date(ts));
-                if(dateStr.includes('BC') || dateStr.includes('ق.م')) return '';
-                return `<bdi>${dateStr}</bdi>`; 
-            } catch(e) { return ''; }
+            if (!ts) return '';
+            try {
+                let s = new Intl.DateTimeFormat(state.lang === 'ar' ? 'ar-SA' : 'en-US', { calendar: 'islamic', day: 'numeric', month: 'short' }).format(new Date(ts));
+                return (s.includes('BC') || s.includes('ق.م')) ? '' : `<bdi>${s}</bdi>`;
+            } catch { return ''; }
         };
 
-        function toggleLanguage() { state.lang = state.lang === 'ar' ? 'en' : 'ar'; document.documentElement.lang = state.lang; document.documentElement.dir = state.lang === 'ar' ? 'rtl' : 'ltr'; renderApp(); }
+        /* ════════════════════════════════════════════
+           TOAST  (FIX #8 feedback utility)
+        ════════════════════════════════════════════ */
+        let _toastTimer = null;
+        function showToast(msg, duration = 2800) {
+            const el = document.getElementById('toast');
+            el.textContent = msg;
+            el.classList.add('show');
+            clearTimeout(_toastTimer);
+            _toastTimer = setTimeout(() => el.classList.remove('show'), duration);
+        }
+
+        /* ════════════════════════════════════════════
+           CUSTOM CONFIRM  (FIX #7 & FIX tilawah native confirm)
+        ════════════════════════════════════════════ */
+        let _confirmResolve = null;
+        function showConfirm(msg, title) {
+            return new Promise(resolve => {
+                _confirmResolve = resolve;
+                document.getElementById('confirmTitle').innerText = title || t('confirmTitle') || 'تأكيد';
+                document.getElementById('confirmMsg').innerText   = msg;
+                document.getElementById('confirmOkBtn').innerText = state.lang === 'ar' ? 'تأكيد' : 'Confirm';
+                document.getElementById('confirmNoBtn').innerText = state.lang === 'ar' ? 'إلغاء' : 'Cancel';
+                document.getElementById('confirmModal').style.display = 'flex';
+            });
+        }
+        function resolveConfirm(val) {
+            closeModal('confirmModal');
+            if (_confirmResolve) { _confirmResolve(val); _confirmResolve = null; }
+        }
+        function dismissConfirm() { resolveConfirm(false); }
+
+        /* ════════════════════════════════════════════
+           LANGUAGE TOGGLE
+        ════════════════════════════════════════════ */
+        function toggleLanguage() {
+            state.lang = state.lang === 'ar' ? 'en' : 'ar';
+            document.documentElement.lang = state.lang;
+            document.documentElement.dir  = state.lang === 'ar' ? 'rtl' : 'ltr';
+            saveState();
+            renderApp();
+        }
         function updateName(val) { state.userName = val; saveState(); }
-        function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
-        
-        function calculateDailyPlan() {
-            const todayStr = getTodayStr();
-            let memHizbs = [...new Set(state.quarters.filter(q => q.revCount > 0).map(q => q.hizb))].sort((a,b) => a - b);
-            
-            let rCount = state.planConfig.recent;
-            let sCount = state.planConfig.seq;
-            let recentHizbs = memHizbs.slice(-rCount);
-            let seqPool = memHizbs.filter(h => !recentHizbs.includes(h)); 
 
-            let needsUpdate = state.plan.date !== todayStr || 
-                              (state.plan.seqHizbs.length < sCount && seqPool.length > 0) || 
-                              (state.plan.seqHizbs.length > sCount);
+        /* ════════════════════════════════════════════
+           OVERDUE CHECK  (FIX #4: use every() correctly)
+           A hizb is "overdue" if ALL its started quarters have gone past freshnessDays.
+           A quarter is "started" if revCount > 0.
+        ════════════════════════════════════════════ */
+        function isHizbOverdue(hizbNum) {
+            const qs      = state.quarters.filter(q => q.hizb === hizbNum);
+            const started = qs.filter(q => q.revCount > 0);
+            if (started.length === 0) return false; // not memorized at all
+            const threshold = state.freshnessDays * 86400000;
+            // Overdue if NO started quarter has been revised recently
+            return !started.some(q => q.lastRevised && (Date.now() - q.lastRevised) <= threshold);
+        }
 
-            if (needsUpdate) {
-                let oldSeq = state.plan.seqHizbs || [];
-                let oldDone = state.plan.seqDone || [];
-                let newSeq = [];
-                let newDone = [];
+        /* ════════════════════════════════════════════
+           STREAK  (FIX #2: only count actual revision actions, not date-editing)
+           We track "revision action dates" separately via a lightweight set
+           stored in state.revisionDays.
+        ════════════════════════════════════════════ */
+        // Ensure revisionDays exists (migration-safe)
+        if (!state.revisionDays) state.revisionDays = [];
 
-                oldSeq.forEach((h, i) => { 
-                    let keep = (state.plan.date !== todayStr) ? !oldDone[i] : true;
-                    if (keep && seqPool.includes(h) && newSeq.length < sCount) { 
-                        newSeq.push(h); 
-                        newDone.push(state.plan.date !== todayStr ? false : oldDone[i]); 
-                    } 
-                });
-
-                let lastHizb = oldSeq.length > 0 ? Math.max(...oldSeq) : 0;
-                let maxCanAdd = Math.min(sCount, seqPool.length);
-                let safetyCounter = 0; 
-
-                while(newSeq.length < maxCanAdd && safetyCounter < 100) {
-                    safetyCounter++;
-                    let nextCandidates = seqPool.filter(h => h > lastHizb && !newSeq.includes(h));
-                    if (nextCandidates.length > 0) {
-                        let next = nextCandidates[0];
-                        newSeq.push(next);
-                        newDone.push(false);
-                        lastHizb = next;
-                    } else { 
-                        lastHizb = 0; 
-                        if (seqPool.filter(h => !newSeq.includes(h)).length === 0) break;
-                    }
-                }
-                
-                state.plan = { date: todayStr, seqHizbs: newSeq, seqDone: newDone, recentHizbs: recentHizbs };
-                saveState();
-            } else {
-                state.plan.recentHizbs = recentHizbs;
+        function recordRevisionToday() {
+            const today = getTodayStr();
+            if (!state.revisionDays.includes(today)) {
+                state.revisionDays.push(today);
+                // Keep at most 400 entries (> 1 year of daily data)
+                if (state.revisionDays.length > 400) state.revisionDays.shift();
                 saveState();
             }
         }
 
         function calculateStreak() {
-            const activeDates = new Set(state.quarters.filter(q => q.lastRevised > 0).map(q => new Date(q.lastRevised).toISOString().split('T')[0]));
-            let streak = 0; let d = new Date(); let todayStr = d.toISOString().split('T')[0];
-            d.setDate(d.getDate() - 1); let yesterdayStr = d.toISOString().split('T')[0];
-            let checkDate = new Date();
-            if (!activeDates.has(todayStr) && activeDates.has(yesterdayStr)) checkDate.setDate(checkDate.getDate() - 1);
+            const days = new Set(state.revisionDays);
+            let streak = 0;
+            let check  = new Date();
+            const todayStr     = check.toISOString().split('T')[0];
+            const tempDate     = new Date(check); tempDate.setDate(tempDate.getDate() - 1);
+            const yesterdayStr = tempDate.toISOString().split('T')[0];
+
+            // Allow streak to continue if last revision was yesterday (not yet today)
+            if (!days.has(todayStr) && days.has(yesterdayStr)) {
+                check.setDate(check.getDate() - 1);
+            }
             while (true) {
-                if (activeDates.has(checkDate.toISOString().split('T')[0])) { streak++; checkDate.setDate(checkDate.getDate() - 1); } else break;
+                const ds = check.toISOString().split('T')[0];
+                if (days.has(ds)) { streak++; check.setDate(check.getDate() - 1); }
+                else break;
             }
             return streak;
         }
 
-        function isHizbOverdue(hizbNum) {
-            const qs = state.quarters.filter(q => q.hizb === hizbNum);
-            return qs.some(q => q.revCount > 0) && !qs.some(q => q.lastRevised && (Date.now() - q.lastRevised) <= (state.freshnessDays * 86400000));
+        /* ════════════════════════════════════════════
+           DAILY PLAN
+        ════════════════════════════════════════════ */
+        function calculateDailyPlan() {
+            const todayStr = getTodayStr();
+            const memHizbs = [...new Set(state.quarters.filter(q => q.revCount > 0).map(q => q.hizb))].sort((a, b) => a - b);
+
+            const rCount     = state.planConfig.recent;
+            const sCount     = state.planConfig.seq;
+            const recentHizbs = memHizbs.slice(-rCount);
+            const seqPool    = memHizbs.filter(h => !recentHizbs.includes(h));
+
+            const needsUpdate = state.plan.date !== todayStr
+                || (state.plan.seqHizbs.length < sCount && seqPool.length > 0)
+                || (state.plan.seqHizbs.length > sCount);
+
+            if (needsUpdate) {
+                const oldSeq  = state.plan.seqHizbs || [];
+                const oldDone = state.plan.seqDone   || [];
+                let newSeq = [], newDone = [];
+
+                oldSeq.forEach((h, i) => {
+                    const isNewDay = state.plan.date !== todayStr;
+                    const keep     = isNewDay ? !oldDone[i] : true;
+                    if (keep && seqPool.includes(h) && newSeq.length < sCount) {
+                        newSeq.push(h);
+                        newDone.push(isNewDay ? false : oldDone[i]);
+                    }
+                });
+
+                let lastHizb    = oldSeq.length > 0 ? Math.max(...oldSeq) : 0;
+                let safety      = 0;
+                const maxCanAdd = Math.min(sCount, seqPool.length);
+
+                while (newSeq.length < maxCanAdd && safety < 100) {
+                    safety++;
+                    const candidates = seqPool.filter(h => h > lastHizb && !newSeq.includes(h));
+                    if (candidates.length > 0) {
+                        newSeq.push(candidates[0]);
+                        newDone.push(false);
+                        lastHizb = candidates[0];
+                    } else {
+                        lastHizb = 0;
+                        if (seqPool.filter(h => !newSeq.includes(h)).length === 0) break;
+                    }
+                }
+
+                state.plan = { date: todayStr, seqHizbs: newSeq, seqDone: newDone, recentHizbs };
+                saveState(); // Only save when plan actually changed
+            } else {
+                state.plan.recentHizbs = recentHizbs;
+                // FIX #1: don't saveState here on every render if nothing changed
+            }
         }
 
+        /* ════════════════════════════════════════════
+           RENDER: DATE BAR
+        ════════════════════════════════════════════ */
         function renderDateBar() {
-            const d = new Date();
-            const grego = new Intl.DateTimeFormat(state.lang === 'ar' ? 'ar-EG' : 'en-GB', {weekday:'long', day:'numeric', month:'long'}).format(d);
-            let hijriStr = '';
+            const d     = new Date();
+            const grego = new Intl.DateTimeFormat(state.lang === 'ar' ? 'ar-EG' : 'en-GB', { weekday: 'long', day: 'numeric', month: 'long' }).format(d);
+            let hijri   = '';
             try {
-                hijriStr = new Intl.DateTimeFormat(state.lang === 'ar' ? 'ar-SA' : 'en-US', {calendar: 'islamic', day:'numeric', month:'long', year:'numeric'}).format(d);
-                if(hijriStr.includes('BC') || hijriStr.includes('ق.م')) hijriStr = '';
-            } catch(e) {}
-            document.getElementById('dateBar').innerHTML = `<bdi>${grego}</bdi> ${hijriStr ? `&nbsp;|&nbsp; <bdi>${hijriStr}</bdi>` : ''}`;
+                const s = new Intl.DateTimeFormat(state.lang === 'ar' ? 'ar-SA' : 'en-US', { calendar: 'islamic', day: 'numeric', month: 'long', year: 'numeric' }).format(d);
+                if (!s.includes('BC') && !s.includes('ق.م')) hijri = s;
+            } catch {}
+            document.getElementById('dateBar').innerHTML = `<bdi>${grego}</bdi>${hijri ? ` &nbsp;|&nbsp; <bdi>${hijri}</bdi>` : ''}`;
         }
 
-        function renderApp() {
-            calculateDailyPlan(); 
-            renderDateBar();
-            
-            document.getElementById('userNameInput').value = state.userName;
-            document.getElementById('userNameInput').placeholder = t('namePlaceholder');
-            
-            ['langBtn','exportBtn','importBtn','tabPlan','tabOverdue','tabTilawah','tabHifz','tabListening'].forEach(id => {
-                let el = document.getElementById(id); if(el) el.innerText = t(id.replace('Btn','').replace('tab','').toLowerCase() + (id==='langBtn'?'Toggle':''));
-            });
-
-            ['settingsTitle','settingsSaveBtn','setFreshness','setRecent','setSeq','quickSetupTitle','quickSetupDesc','quickSetupBtn'].forEach(id => {
-                let el = document.getElementById(id); if(el) el.innerText = t(id);
-            });
-
-            document.getElementById('bulkTodayBtn').innerText = t('bulkToday');
-            document.getElementById('bulkCancelBtn').innerText = t('bulkCancel');
-
-            document.getElementById('tutorialTitle').innerText = t('tutTitle');
-            document.getElementById('tutorialBody').innerHTML = t('tutBody').replace('{DAYS}', toArabicNum(state.freshnessDays));
-            document.getElementById('tutorialCloseBtn').innerText = t('tutClose');
-
-            const main = document.getElementById('mainContent');
-            if (currentTab === 'plan') renderPlan(main);
-            else if (currentTab === 'overdue') renderGrid(main, 'overdue');
-            else if (currentTab === 'tilawah') renderTilawah(main);
-            else if (currentTab === 'hifz') renderGrid(main, 'all');
-            else if (currentTab === 'listening') renderListening(main);
-            
-            document.getElementById('bulkBar').style.display = isBulkMode ? 'flex' : 'none';
-            if(isBulkMode) document.getElementById('bulkCount').innerText = `${t('bulkSelected')} ${toArabicNum(selectedHizbs.size)}`;
-        }
-
-        function switchTab(tab) { currentTab = tab; isBulkMode = false; selectedHizbs.clear(); document.querySelectorAll('.tab').forEach(el => el.classList.remove('active')); document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active'); renderApp(); }
-
+        /* ════════════════════════════════════════════
+           RENDER: PLAN TAB
+        ════════════════════════════════════════════ */
         function renderPlan(container) {
-            let streak = calculateStreak();
-            
-            let html = `<div class="streak-banner"><div class="streak-info"><p class="title">${t('streakTitle')}</p><p class="days">${streak === 0 ? t('streakEmpty') : `${toArabicNum(streak)} ${state.lang === 'en' ? 'Days' : 'أيام متواصلة'}`}</p></div>
-            <div class="streak-badge">
-                <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                <span class="streak-number">${toArabicNum(streak)}</span>
-            </div></div>`;
-            
+            const streak = calculateStreak();
+            let html = `
+            <div class="streak-banner">
+                <div class="streak-info">
+                    <p class="title">${t('streakTitle')}</p>
+                    <p class="days">${streak === 0 ? t('streakEmpty') : `${toArabicNum(streak)} ${state.lang === 'en' ? 'Days' : 'أيام متواصلة'}`}</p>
+                </div>
+                <div class="streak-badge">
+                    <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    <span class="streak-number">${toArabicNum(streak)}</span>
+                </div>
+            </div>`;
+
             if (state.planConfig.recent > 0) {
                 html += `<h2 class="section-title">${t('recent')}</h2>`;
-                if (state.plan.recentHizbs.length === 0) html += `<p style="color:gray; font-size:14px;">-</p>`;
+                if (state.plan.recentHizbs.length === 0) {
+                    html += `<p style="color:var(--text-muted);font-size:14px;">-</p>`;
+                }
                 state.plan.recentHizbs.forEach(h => {
-                    let qs = state.quarters.filter(q => q.hizb === h);
-                    let latestDate = Math.max(...qs.map(q => q.lastRevised || 0));
-                    html += `<div class="plan-item" onclick="openHizbModal(${h})"><span class="hizb-num">${t('hizb')} ${toArabicNum(h)}</span>
-                    <div style="text-align:left;"><span style="color:var(--secondary); font-size:11px; font-weight:bold; display:block;">${formatHijri(latestDate)}</span><span style="color:gray; font-size:11px;">${formatDate(latestDate)}</span></div></div>`;
+                    const qs         = state.quarters.filter(q => q.hizb === h);
+                    const latestDate = Math.max(...qs.map(q => q.lastRevised || 0));
+                    html += `<div class="plan-item" data-action="openHizb" data-hizb="${h}">
+                        <span class="hizb-num">${t('hizb')} ${toArabicNum(h)}</span>
+                        <div style="text-align:left;">
+                            <span style="color:var(--secondary);font-size:11px;font-weight:700;display:block;">${formatHijri(latestDate)}</span>
+                            <span style="color:var(--text-muted);font-size:11px;">${formatDate(latestDate)}</span>
+                        </div>
+                    </div>`;
                 });
             }
 
             if (state.planConfig.seq > 0) {
                 html += `<h2 class="section-title">${t('seq')}</h2>`;
-                if (state.plan.seqHizbs.length === 0) html += `<p style="color:gray; font-size:14px;">-</p>`;
-                state.plan.seqHizbs.forEach((h, index) => {
-                    const isDone = state.plan.seqDone[index];
-                    html += `<div class="plan-item ${isDone ? 'done' : ''}"><span class="hizb-num">${t('hizb')} ${toArabicNum(h)}</span><button class="${isDone ? 'btn-outline' : 'btn-primary'}" onclick="markSeqDone(${index})" ${isDone ? 'disabled' : ''}>${t('done')}</button></div>`;
+                if (state.plan.seqHizbs.length === 0) {
+                    html += `<p style="color:var(--text-muted);font-size:14px;">-</p>`;
+                }
+                state.plan.seqHizbs.forEach((h, idx) => {
+                    const isDone = state.plan.seqDone[idx];
+                    html += `<div class="plan-item ${isDone ? 'done' : ''}">
+                        <span class="hizb-num">${t('hizb')} ${toArabicNum(h)}</span>
+                        <button class="${isDone ? 'btn-outline' : 'btn-primary'}" data-action="seqDone" data-idx="${idx}" ${isDone ? 'disabled' : ''}>${t('done')}</button>
+                    </div>`;
                 });
             }
 
             if (state.planConfig.recent === 0 && state.planConfig.seq === 0) {
-                 html += `<p style="text-align:center; color:gray; margin-top:30px; font-size: 14px;">${state.lang === 'en' ? 'Daily plan is disabled in settings.' : 'خطة اليوم معطلة في الإعدادات.'}</p>`;
+                html += `<p style="text-align:center;color:var(--text-muted);margin-top:30px;font-size:14px;">${state.lang === 'en' ? 'Daily plan is disabled in settings.' : 'خطة اليوم معطلة في الإعدادات.'}</p>`;
             }
 
             container.innerHTML = html;
         }
 
+        /* ════════════════════════════════════════════
+           RENDER: HIZB GRID  (FIX #10: data-* + event delegation)
+        ════════════════════════════════════════════ */
         function renderGrid(container, filterType) {
             let html = '';
-            
-            // Add Progress Bar and Stats Dashboard for Hifz Tracker Tab
+
             if (filterType === 'all') {
                 let fullHizbs = 0;
-                let memQuarters = state.quarters.filter(q => q.revCount > 0);
-                
+                const memQuarters = state.quarters.filter(q => q.revCount > 0);
                 for (let i = 1; i <= 60; i++) {
                     if (state.quarters.filter(q => q.hizb === i && q.revCount > 0).length === 4) fullHizbs++;
                 }
-                let percentage = Math.round((fullHizbs / 60) * 100);
-                
-                // Calculate Stats
-                let totalRevisions = memQuarters.reduce((sum, q) => sum + (q.revCount > 1 ? q.revCount - 1 : 0), 0);
-                let avgRepetitions = memQuarters.length > 0 ? (memQuarters.reduce((sum, q) => sum + q.revCount, 0) / memQuarters.length).toFixed(1) : 0;
-                let overdueHizbsCount = 0;
-                for (let i = 1; i <= 60; i++) { if (isHizbOverdue(i)) overdueHizbsCount++; }
-                
+                const percentage     = Math.round((fullHizbs / 60) * 100);
+                const totalRevisions = memQuarters.reduce((s, q) => s + (q.revCount > 1 ? q.revCount - 1 : 0), 0);
+                const avgRep         = memQuarters.length > 0 ? (memQuarters.reduce((s, q) => s + q.revCount, 0) / memQuarters.length).toFixed(1) : 0;
+                let overdueCount     = 0;
+                for (let i = 1; i <= 60; i++) { if (isHizbOverdue(i)) overdueCount++; }
+
                 html += `
                 <div class="progress-container">
                     <div class="progress-header">
                         <span>${t('overallProgress')}</span>
                         <bdi>${toArabicNum(percentage)}% (${toArabicNum(fullHizbs)}/60)</bdi>
                     </div>
-                    <div class="progress-bar-bg">
-                        <div class="progress-bar-fill" style="width: ${percentage}%;"></div>
-                    </div>
+                    <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${percentage}%;"></div></div>
                 </div>
-                
                 <div class="stats-grid">
                     <div class="stat-box">
                         <div class="stat-value"><bdi>${toArabicNum(totalRevisions)}</bdi></div>
                         <div class="stat-label">${t('totalRevisions')}</div>
                     </div>
                     <div class="stat-box">
-                        <div class="stat-value"><bdi>${toArabicNum(avgRepetitions)}</bdi></div>
+                        <div class="stat-value"><bdi>${toArabicNum(avgRep)}</bdi></div>
                         <div class="stat-label">${t('hifzStrength')}</div>
                     </div>
-                    <div class="stat-box" style="${overdueHizbsCount > 0 ? 'border-color: var(--danger); background: var(--danger-light);' : ''}">
-                        <div class="stat-value" style="${overdueHizbsCount > 0 ? 'color: var(--danger);' : ''}"><bdi>${toArabicNum(overdueHizbsCount)}</bdi></div>
-                        <div class="stat-label" style="${overdueHizbsCount > 0 ? 'color: var(--danger);' : ''}">${t('overdueCount')}</div>
+                    <div class="stat-box" style="${overdueCount > 0 ? 'border-color:var(--danger);background:var(--danger-light);' : ''}">
+                        <div class="stat-value" style="${overdueCount > 0 ? 'color:var(--danger);' : ''}"><bdi>${toArabicNum(overdueCount)}</bdi></div>
+                        <div class="stat-label" style="${overdueCount > 0 ? 'color:var(--danger);' : ''}">${t('overdueCount')}</div>
                     </div>
                 </div>
-
-                <div style="display:flex; justify-content:flex-end; margin-bottom: 15px;"><button class="btn-outline" onclick="toggleBulkMode()">${isBulkMode ? t('bulkCancel') : t('edit')} ✏️</button></div>`;
+                <div style="display:flex;justify-content:flex-end;margin-bottom:15px;">
+                    <button class="btn-outline" data-action="toggleBulk">${isBulkMode ? t('bulkCancel') : t('edit')} ✏️</button>
+                </div>`;
             }
 
-            html += '<div class="grid">'; let count = 0;
+            html += '<div class="grid">';
+            let count = 0;
             for (let i = 1; i <= 60; i++) {
-                let qs = state.quarters.filter(q => q.hizb === i);
-                let overdue = isHizbOverdue(i);
+                const qs       = state.quarters.filter(q => q.hizb === i);
+                const overdue  = isHizbOverdue(i);
                 if (filterType === 'overdue' && !overdue) continue;
                 count++;
-                let cardClass = (qs.filter(q => q.revCount > 0).length === 4) ? 'memorized' : '';
-                if (overdue) cardClass = 'overdue';
-                if (isBulkMode && selectedHizbs.has(i)) cardClass += ' selected';
-                
-                let latestDate = Math.max(...qs.map(q => q.lastRevised || 0));
-
-                html += `<div class="card ${cardClass}" onclick="${isBulkMode ? `toggleHizbSelection(${i})` : `openHizbModal(${i})`}">
-                    <span style="font-size:11px; color:gray; margin-bottom:-2px;">${t('hizb')}</span>
+                let cls = qs.filter(q => q.revCount > 0).length === 4 ? 'memorized' : '';
+                if (overdue) cls = 'overdue';
+                if (isBulkMode && selectedHizbs.has(i)) cls += ' selected';
+                const latestDate = Math.max(...qs.map(q => q.lastRevised || 0));
+                html += `<div class="card ${cls}" data-action="${isBulkMode ? 'selectHizb' : 'openHizb'}" data-hizb="${i}">
+                    <span style="font-size:11px;color:var(--text-muted);margin-bottom:-2px;">${t('hizb')}</span>
                     <span class="hizb-num">${toArabicNum(i)}</span>
-                    ${latestDate > 0 ? `<span style="font-size:10px; color:var(--secondary); font-weight:bold; margin-top:2px;">${formatHijri(latestDate)}</span><span style="font-size:10px; color:gray; margin-top:2px;">${formatDate(latestDate)}</span>` : `<span style="font-size:10px; color:gray; margin-top:4px;">${t('never')}</span>`}
+                    ${latestDate > 0
+                        ? `<span style="font-size:10px;color:var(--secondary);font-weight:700;margin-top:2px;">${formatHijri(latestDate)}</span><span style="font-size:10px;color:var(--text-muted);margin-top:2px;">${formatDate(latestDate)}</span>`
+                        : `<span style="font-size:10px;color:var(--text-muted);margin-top:4px;">${t('never')}</span>`}
                     ${overdue ? `<span class="overdue-label">${t('overdueLabel')}</span>` : ''}
                 </div>`;
             }
-            container.innerHTML = html + '</div>' + (filterType === 'overdue' && count === 0 ? `<div style="text-align:center; margin-top:50px; color:gray;">✓</div>` : '');
+            html += '</div>';
+            if (filterType === 'overdue' && count === 0) {
+                html += `<div style="text-align:center;margin-top:50px;font-size:36px;">✓</div><p style="text-align:center;color:var(--text-muted);margin-top:8px;">${state.lang === 'ar' ? 'لا توجد أحزاب متأخرة' : 'No overdue Hizbs'}</p>`;
+            }
+            container.innerHTML = html;
         }
 
+        /* ════════════════════════════════════════════
+           RENDER: TILAWAH
+        ════════════════════════════════════════════ */
         function renderTilawah(container) {
-            let html = `<div class="section-title"><span>${t('khatmaTracker')}</span> <button class="btn-outline" onclick="resetTilawah()">${t('newKhatma')}</button></div>`;
-            html += '<div class="grid">';
-            for(let i = 0; i < 30; i++) {
-                let isRead = state.tilawah[i] > 0;
-                html += `<div class="card ${isRead ? 'memorized' : ''}" style="height:90px;" onclick="toggleTilawah(${i})">
-                    <span class="hizb-num" style="font-size:18px;">${t('juz')} ${toArabicNum(i+1)}</span>
-                    ${isRead ? `<span style="font-size:11px; color:var(--primary); font-weight:bold; margin-top:5px;">${t('read')} ✓</span>` : ''}
+            let html = `<div class="section-title"><span>${t('khatmaTracker')}</span><button class="btn-outline" data-action="resetTilawah">${t('newKhatma')}</button></div><div class="grid">`;
+            for (let i = 0; i < 30; i++) {
+                const isRead = state.tilawah[i] > 0;
+                html += `<div class="card ${isRead ? 'memorized' : ''}" style="height:90px;" data-action="toggleTilawah" data-idx="${i}">
+                    <span class="hizb-num" style="font-size:18px;">${t('juz')} ${toArabicNum(i + 1)}</span>
+                    ${isRead ? `<span style="font-size:11px;color:var(--primary);font-weight:700;margin-top:5px;">${t('read')} ✓</span>` : ''}
                 </div>`;
             }
             container.innerHTML = html + '</div>';
         }
 
+        /* ════════════════════════════════════════════
+           RENDER: LISTENING
+        ════════════════════════════════════════════ */
         function renderListening(container) {
             let html = '<div class="grid">';
             state.listening.forEach(l => {
-                let isThisPlaying = (playingHizb === l.hizb && isPlaying);
-                html += `<div class="card ${l.listened ? 'listened' : ''}" style="height:120px; padding:0; overflow:hidden;">
-                    <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; width:100%; cursor:pointer;" onclick="toggleListening(${l.hizb})">
-                        <span style="font-size:11px; color:gray; margin-bottom:-2px;">${t('hizb')}</span>
+                const playing = (playingHizb === l.hizb && isPlaying);
+                html += `<div class="card ${l.listened ? 'listened' : ''}" style="height:120px;padding:0;overflow:hidden;">
+                    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;cursor:pointer;" data-action="toggleListening" data-hizb="${l.hizb}">
+                        <span style="font-size:11px;color:var(--text-muted);margin-bottom:-2px;">${t('hizb')}</span>
                         <span class="hizb-num">${toArabicNum(l.hizb)}</span>
-                        ${l.listened ? `<span style="font-size:11px; color:var(--secondary); font-weight:bold; margin-top:4px;">${t('listenedText')} ✓</span>` : ''}
+                        ${l.listened ? `<span style="font-size:11px;color:var(--secondary);font-weight:700;margin-top:4px;">${t('listenedText')} ✓</span>` : ''}
                     </div>
-                    <button class="btn-icon" style="width:100%; border-top:1px solid #eee; padding:8px 0; border-radius:0; background:transparent;" onclick="playHizbAudio(${l.hizb})" id="audioBtn_${l.hizb}">${isThisPlaying ? '⏸️' : '▶️'}</button>
+                    <button class="btn-icon" style="width:100%;border-top:1px solid #eee;padding:8px 0;border-radius:0;background:transparent;" data-action="playAudio" data-hizb="${l.hizb}" id="audioBtn_${l.hizb}">${playing ? '⏸️' : '▶️'}</button>
                 </div>`;
             });
             container.innerHTML = html + '</div>';
         }
 
-        function toggleTilawah(idx) { state.tilawah[idx] = state.tilawah[idx] > 0 ? 0 : Date.now(); saveState(); renderApp(); }
-        function resetTilawah() { if(confirm(state.lang === 'ar' ? 'هل أنت متأكد من بدء ختمة جديدة؟' : 'Start a new Khatma?')) { state.tilawah = Array(30).fill(0); saveState(); renderApp(); } }
+        /* ════════════════════════════════════════════
+           EVENT DELEGATION  (FIX #10)
+        ════════════════════════════════════════════ */
+        document.getElementById('mainContent').addEventListener('click', e => {
+            const el = e.target.closest('[data-action]');
+            if (!el) return;
+            const action = el.dataset.action;
+            const hizb   = parseInt(el.dataset.hizb);
+            const idx    = parseInt(el.dataset.idx);
 
-        function playHizbAudio(hizb) {
-            let btn = document.getElementById('audioBtn_' + hizb);
-            if (playingHizb === hizb && isPlaying) { currentAudio.pause(); isPlaying = false; btn.innerText = '▶️'; return; }
-            currentAudio.play().catch(e => {}); currentAudio.pause(); 
-            if (playingHizb && playingHizb !== hizb) { let oldBtn = document.getElementById('audioBtn_' + playingHizb); if (oldBtn) oldBtn.innerText = '▶️'; }
-            btn.innerText = '⏳';
-            const quarters = [1, 2, 3, 4].map(q => (hizb - 1) * 4 + q);
-            
-            Promise.all(quarters.map(q => fetch(`https://api.alquran.cloud/v1/hizbQuarter/${q}/ar.minshawi`).then(r => r.json())))
-            .then(results => {
-                audioQueue = [];
-                results.forEach(d => { if(d.data && d.data.ayahs) audioQueue.push(...d.data.ayahs.map(a => a.audio)); });
-                if(audioQueue.length === 0) throw new Error();
-                playingHizb = hizb; isPlaying = true; playNextAyah(0);
-            }).catch(() => { btn.innerText = '▶️'; });
-        }
-        function playNextAyah(index) {
-            let btn = document.getElementById('audioBtn_' + playingHizb);
-            if(index >= audioQueue.length) { isPlaying = false; playingHizb = null; if(btn) btn.innerText = '▶️'; return; }
-            currentAudio.src = audioQueue[index]; currentAudio.play(); if(btn) btn.innerText = '⏸️';
-            currentAudio.onended = () => playNextAyah(index + 1);
+            if (action === 'openHizb')        openHizbModal(hizb);
+            else if (action === 'selectHizb') { toggleHizbSelection(hizb); renderApp(); }
+            else if (action === 'seqDone')    { markSeqDone(idx); }
+            else if (action === 'toggleBulk') toggleBulkMode();
+            else if (action === 'toggleTilawah') toggleTilawah(idx);
+            else if (action === 'resetTilawah')  resetTilawah();
+            else if (action === 'toggleListening') { toggleListening(hizb); }
+            else if (action === 'playAudio')  playHizbAudio(hizb);
+        });
+
+        /* ════════════════════════════════════════════
+           ACTIONS
+        ════════════════════════════════════════════ */
+        function markSeqDone(index) {
+            state.plan.seqDone[index] = true;
+            recordRevisionToday(); // FIX #2: record a real revision action
+            saveState();
+            renderApp();
         }
 
-        function markSeqDone(index) { state.plan.seqDone[index] = true; saveState(); renderApp(); }
-        function toggleListening(hizb) { let item = state.listening.find(l => l.hizb === hizb); item.listened = !item.listened; saveState(); renderApp(); }
-        function toggleBulkMode() { isBulkMode = !isBulkMode; if (!isBulkMode) selectedHizbs.clear(); renderApp(); }
-        function toggleHizbSelection(hizb) { if (selectedHizbs.has(hizb)) selectedHizbs.delete(hizb); else selectedHizbs.add(hizb); renderApp(); }
-        
-        // INCREMENT LOGIC ADDED HERE
-        function bulkAction(type, dateVal = null) {
+        function toggleListening(hizb) {
+            const item = state.listening.find(l => l.hizb === hizb);
+            item.listened = !item.listened;
+            saveState();
+            renderApp();
+        }
+
+        function toggleBulkMode() {
+            isBulkMode = !isBulkMode;
+            if (!isBulkMode) selectedHizbs.clear();
+            renderApp();
+        }
+
+        function toggleHizbSelection(hizb) {
+            selectedHizbs.has(hizb) ? selectedHizbs.delete(hizb) : selectedHizbs.add(hizb);
+        }
+
+        // FIX #3: timezone-safe date, FIX #7: confirmation before bulk action
+        async function bulkAction(type, dateVal = null) {
             if (selectedHizbs.size === 0) return;
-            if (type === 'date' && !dateVal) return; 
-            const targetTime = type === 'today' ? Date.now() : new Date(dateVal).getTime();
-            selectedHizbs.forEach(h => { 
-                state.quarters.filter(q => q.hizb === h).forEach(q => { 
-                    if (q.revCount === 0) {
-                        q.revCount = 1; // Mark as memorized
-                    } else if (q.revCount >= 1 && q.revCount < 11) {
-                        q.revCount += 1; // Mark as revised
-                    }
-                    q.lastRevised = targetTime; 
-                }); 
+            if (type === 'date' && !dateVal) return;
+
+            const ok = await showConfirm(t('confirmBulk'));
+            if (!ok) return;
+
+            // FIX #3: anchor to local noon to avoid UTC off-by-one
+            const targetTime = type === 'today'
+                ? Date.now()
+                : new Date(dateVal + 'T12:00:00').getTime();
+
+            selectedHizbs.forEach(h => {
+                state.quarters.filter(q => q.hizb === h).forEach(q => {
+                    if (q.revCount === 0)                      q.revCount = 1;
+                    else if (q.revCount >= 1 && q.revCount < 11) q.revCount += 1;
+                    q.lastRevised = targetTime;
+                });
             });
-            saveState(); toggleBulkMode(); renderApp();
+
+            if (type === 'today') recordRevisionToday(); // FIX #2
+            saveState();
+            toggleBulkMode();
+            renderApp();
         }
 
+        /* ════════════════════════════════════════════
+           HIZB MODAL
+        ════════════════════════════════════════════ */
         function openHizbModal(hizb) {
             document.getElementById('modalTitle').innerText = `${t('hizb')} ${toArabicNum(hizb)}`;
-            document.getElementById('modalNotesContainer').innerHTML = `<textarea placeholder="${t('notesHolder')}" onchange="saveHizbNote(${hizb}, this.value)">${state.hizbNotes[hizb] || ''}</textarea>`;
-            let qs = state.quarters.filter(q => q.hizb === hizb);
+            document.getElementById('modalNotesContainer').innerHTML =
+                `<textarea placeholder="${t('notesHolder')}" onchange="saveHizbNote(${hizb}, this.value)">${state.hizbNotes[hizb] || ''}</textarea>`;
+
+            const qs   = state.quarters.filter(q => q.hizb === hizb);
+            const names = t('quarterNames');
             let html = '';
             qs.forEach((q, idx) => {
-                html += `<div class="quarter-row"><div style="flex:1;"><strong>${t('quarterNames')[idx]}</strong><br>
-                <div style="margin-top:5px; margin-bottom:5px;"><span style="color:var(--secondary); font-size:11px; font-weight:bold;">${formatHijri(q.lastRevised)}</span></div>
-                <button class="date-badge" onclick="document.getElementById('qDate_${q.id}').showPicker()">${formatDate(q.lastRevised)} ✏️</button><input type="date" id="qDate_${q.id}" style="display:none;" value="${q.lastRevised ? new Date(q.lastRevised).toISOString().split('T')[0] : ''}" onchange="setQuarterDate(${q.id}, this.value)"></div><div class="counter-controls"><button class="circle-btn ${q.revCount > 0 ? 'active' : ''}" onclick="updateQuarter(${q.id}, -1)">−</button><span style="font-size:18px; font-weight:bold; width: 20px; text-align:center;">${toArabicNum(q.revCount)}</span><button class="circle-btn ${q.revCount < 11 ? 'active' : ''}" onclick="updateQuarter(${q.id}, 1)">+</button></div></div>`;
+                html += `<div class="quarter-row">
+                    <div style="flex:1;">
+                        <strong>${names[idx]}</strong><br>
+                        <div style="margin-top:5px;margin-bottom:5px;">
+                            <span style="color:var(--secondary);font-size:11px;font-weight:700;">${formatHijri(q.lastRevised)}</span>
+                        </div>
+                        <button class="date-badge" onclick="document.getElementById('qDate_${q.id}').showPicker()">${formatDate(q.lastRevised)} ✏️</button>
+                        <input type="date" id="qDate_${q.id}" style="display:none;" value="${q.lastRevised ? new Date(q.lastRevised).toISOString().split('T')[0] : ''}" onchange="setQuarterDate(${q.id}, this.value)">
+                    </div>
+                    <div class="counter-controls">
+                        <button class="circle-btn ${q.revCount > 0 ? 'active' : ''}" onclick="updateQuarter(${q.id}, -1)">−</button>
+                        <span style="font-size:18px;font-weight:700;width:20px;text-align:center;">${toArabicNum(q.revCount)}</span>
+                        <button class="circle-btn ${q.revCount < 11 ? 'active' : ''}" onclick="updateQuarter(${q.id}, 1)">+</button>
+                    </div>
+                </div>`;
             });
             document.getElementById('modalBody').innerHTML = html;
             document.getElementById('hizbModal').style.display = 'flex';
         }
-        
-        function updateQuarter(id, change) { 
-            let q = state.quarters.find(x => x.id === id); 
-            if (q.revCount + change >= 0 && q.revCount + change <= 11) { 
-                q.revCount += change; 
-                if (q.revCount === 0) { q.lastRevised = 0; } else { q.lastRevised = Date.now(); }
-                saveState(); openHizbModal(q.hizb); renderApp(); 
-            } 
+
+        function updateQuarter(id, change) {
+            const q = state.quarters.find(x => x.id === id);
+            const next = q.revCount + change;
+            if (next < 0 || next > 11) return;
+            q.revCount = next;
+            q.lastRevised = next === 0 ? 0 : Date.now();
+            if (next > 0) recordRevisionToday(); // FIX #2
+            saveState();
+            openHizbModal(q.hizb);
+            renderApp();
         }
-        
-        function setQuarterDate(id, dateStr) { if(!dateStr) return; let q = state.quarters.find(x => x.id === id); q.lastRevised = new Date(dateStr).getTime(); if(q.revCount === 0) q.revCount = 1; saveState(); openHizbModal(q.hizb); renderApp(); }
+
+        function setQuarterDate(id, dateStr) {
+            if (!dateStr) return;
+            const q = state.quarters.find(x => x.id === id);
+            // FIX #3: timezone-safe parse
+            q.lastRevised = new Date(dateStr + 'T12:00:00').getTime();
+            if (q.revCount === 0) q.revCount = 1;
+            // NOTE: setting a past date deliberately does NOT record a streak day (FIX #2)
+            saveState();
+            openHizbModal(q.hizb);
+            renderApp();
+        }
+
         function saveHizbNote(hizb, text) { state.hizbNotes[hizb] = text; saveState(); }
 
-        function openSettings() { 
-            document.getElementById('freshnessInput').value = state.freshnessDays; 
-            document.getElementById('recentInput').value = state.planConfig.recent; 
-            document.getElementById('seqInput').value = state.planConfig.seq; 
-            document.getElementById('settingsModal').style.display = 'flex'; 
+        /* ════════════════════════════════════════════
+           TILAWAH
+        ════════════════════════════════════════════ */
+        function toggleTilawah(idx) {
+            state.tilawah[idx] = state.tilawah[idx] > 0 ? 0 : Date.now();
+            saveState();
+            renderApp();
         }
-        function saveSettings() { 
-            let fVal = parseInt(document.getElementById('freshnessInput').value);
-            let rVal = parseInt(document.getElementById('recentInput').value);
-            let sVal = parseInt(document.getElementById('seqInput').value);
 
-            state.freshnessDays = isNaN(fVal) ? 30 : fVal; 
-            state.planConfig.recent = isNaN(rVal) ? 2 : rVal; 
-            state.planConfig.seq = isNaN(sVal) ? 4 : sVal; 
-            
-            saveState(); closeModal('settingsModal'); renderApp(); 
+        // FIX: native confirm() replaced with custom modal
+        async function resetTilawah() {
+            const ok = await showConfirm(t('confirmNewKhatma'));
+            if (!ok) return;
+            state.tilawah = Array(30).fill(0);
+            saveState();
+            renderApp();
         }
+
+        /* ════════════════════════════════════════════
+           AUDIO  (FIX #8: meaningful error feedback)
+        ════════════════════════════════════════════ */
+        function playHizbAudio(hizb) {
+            const btn = document.getElementById('audioBtn_' + hizb);
+            if (playingHizb === hizb && isPlaying) {
+                currentAudio.pause(); isPlaying = false; if (btn) btn.innerText = '▶️';
+                return;
+            }
+            currentAudio.pause();
+            if (playingHizb && playingHizb !== hizb) {
+                const old = document.getElementById('audioBtn_' + playingHizb);
+                if (old) old.innerText = '▶️';
+            }
+            if (btn) btn.innerText = '⏳';
+
+            const quarters = [1, 2, 3, 4].map(q => (hizb - 1) * 4 + q);
+            Promise.all(
+                quarters.map(q =>
+                    fetch(`https://api.alquran.cloud/v1/hizbQuarter/${q}/ar.minshawi`)
+                        .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+                )
+            ).then(results => {
+                audioQueue = [];
+                results.forEach(d => { if (d.data && d.data.ayahs) audioQueue.push(...d.data.ayahs.map(a => a.audio)); });
+                if (audioQueue.length === 0) throw new Error('empty');
+                playingHizb = hizb; isPlaying = true;
+                playNextAyah(0);
+            }).catch(err => {
+                console.warn('Audio error:', err);
+                if (btn) btn.innerText = '▶️';
+                showToast(t('audioError')); // FIX #8: visible error
+            });
+        }
+
+        function playNextAyah(index) {
+            const btn = document.getElementById('audioBtn_' + playingHizb);
+            if (index >= audioQueue.length) {
+                isPlaying = false; playingHizb = null;
+                if (btn) btn.innerText = '▶️';
+                return;
+            }
+            currentAudio.src = audioQueue[index];
+            currentAudio.play().catch(() => {});
+            if (btn) btn.innerText = '⏸️';
+            currentAudio.onended = () => playNextAyah(index + 1);
+        }
+
+        /* ════════════════════════════════════════════
+           SETTINGS
+        ════════════════════════════════════════════ */
+        function openSettings() {
+            document.getElementById('freshnessInput').value = state.freshnessDays;
+            document.getElementById('recentInput').value    = state.planConfig.recent;
+            document.getElementById('seqInput').value       = state.planConfig.seq;
+            document.getElementById('settingsModal').style.display = 'flex';
+        }
+
+        function saveSettings() {
+            const fVal = parseInt(document.getElementById('freshnessInput').value);
+            const rVal = parseInt(document.getElementById('recentInput').value);
+            const sVal = parseInt(document.getElementById('seqInput').value);
+            state.freshnessDays      = isNaN(fVal) ? 30 : Math.min(Math.max(fVal, 7), 90);
+            state.planConfig.recent  = isNaN(rVal) ? 2  : Math.min(Math.max(rVal, 0), 10);
+            state.planConfig.seq     = isNaN(sVal) ? 4  : Math.min(Math.max(sVal, 0), 10);
+            saveState();
+            closeModal('settingsModal');
+            renderApp();
+        }
+
         function runQuickSetup() {
-            let target = parseInt(document.getElementById('quickSetupInput').value);
+            const target = parseInt(document.getElementById('quickSetupInput').value);
             if (!target || target < 1 || target > 60) return;
             const now = Date.now();
             state.quarters.forEach(q => {
-                if (q.hizb <= target) {
-                    if (q.revCount === 0) q.revCount = 1;
-                    q.lastRevised = now;
-                }
+                if (q.hizb <= target && q.revCount === 0) { q.revCount = 1; q.lastRevised = now; }
             });
-            saveState(); closeModal('settingsModal'); renderApp();
+            recordRevisionToday(); // FIX #2
+            saveState();
+            closeModal('settingsModal');
+            renderApp();
         }
 
+        /* ════════════════════════════════════════════
+           IMPORT / EXPORT  (FIX #6: proper error messages)
+        ════════════════════════════════════════════ */
+        function exportData() {
+            const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+            const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: 'rusookh_backup.json' });
+            a.click();
+            URL.revokeObjectURL(a.href);
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = e => {
+                try {
+                    const imp = JSON.parse(e.target.result);
+                    // FIX #6: validate that the file actually looks like our data
+                    if (!imp.quarters || !Array.isArray(imp.quarters) || imp.quarters.length !== 240) {
+                        throw new Error('invalid structure');
+                    }
+                    state = migrateState(imp);
+                    saveState();
+                    renderApp();
+                    showToast(t('importSuccess'));
+                } catch (err) {
+                    console.error('Import failed:', err);
+                    showToast(t('importError')); // FIX #6: meaningful message
+                }
+            };
+            reader.readAsText(file);
+            // Reset input so same file can be re-imported
+            event.target.value = '';
+        }
+
+        /* ════════════════════════════════════════════
+           TUTORIAL
+        ════════════════════════════════════════════ */
         function openTutorial() {
             document.getElementById('tutorialTitle').innerText = t('tutTitle');
-            document.getElementById('tutorialBody').innerHTML = t('tutBody').replace('{DAYS}', toArabicNum(state.freshnessDays));
+            document.getElementById('tutorialBody').innerHTML  = t('tutBody').replace('{DAYS}', toArabicNum(state.freshnessDays));
             document.getElementById('tutorialCloseBtn').innerText = t('tutClose');
             document.getElementById('tutorialModal').style.display = 'flex';
         }
-        
+
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
-        function exportData() { const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state)); const a = document.createElement('a'); a.href = dataStr; a.download = "rusookh_backup.json"; a.click(); }
-        function importData(event) { const file = event.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = function(e) { try { const imp = JSON.parse(e.target.result); if(imp.quarters) { state = imp; saveState(); renderApp(); alert("Imported!"); } } catch { alert("Error"); } }; reader.readAsText(file); }
+        /* ════════════════════════════════════════════
+           RENDER APP
+        ════════════════════════════════════════════ */
+        function renderApp() {
+            calculateDailyPlan();
+            renderDateBar();
 
-        document.documentElement.lang = state.lang; document.documentElement.dir = state.lang === 'ar' ? 'rtl' : 'ltr'; renderApp();
+            // Sync static text nodes
+            document.getElementById('userNameInput').value       = state.userName;
+            document.getElementById('userNameInput').placeholder = t('namePlaceholder');
+            document.getElementById('langBtn').innerText         = t('langToggle');
+            document.getElementById('exportBtn').innerText       = t('export');
+            document.getElementById('importBtn').innerText       = t('import');
+
+            // Tabs
+            ['plan','overdue','tilawah','hifz','listening'].forEach(tab => {
+                const el = document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1));
+                if (el) el.innerText = t(tab);
+            });
+
+            // Settings labels
+            ['settingsTitle','settingsSaveBtn','setFreshness','setRecent','setSeq','quickSetupTitle','quickSetupDesc','quickSetupBtn'].forEach(id => {
+                const el = document.getElementById(id); if (el) el.innerText = t(id);
+            });
+            const dtEl = document.getElementById('dataTitle'); if (dtEl) dtEl.innerText = t('dataTitle');
+
+            // Bulk bar
+            document.getElementById('bulkTodayBtn').innerText = t('bulkToday');
+            document.getElementById('bulkCancelBtn').innerText = t('bulkCancel');
+
+            // Tutorial (keep up to date in background)
+            document.getElementById('tutorialTitle').innerText    = t('tutTitle');
+            document.getElementById('tutorialBody').innerHTML     = t('tutBody').replace('{DAYS}', toArabicNum(state.freshnessDays));
+            document.getElementById('tutorialCloseBtn').innerText = t('tutClose');
+
+            // Tab content
+            const main = document.getElementById('mainContent');
+            if      (currentTab === 'plan')      renderPlan(main);
+            else if (currentTab === 'overdue')   renderGrid(main, 'overdue');
+            else if (currentTab === 'tilawah')   renderTilawah(main);
+            else if (currentTab === 'hifz')      renderGrid(main, 'all');
+            else if (currentTab === 'listening') renderListening(main);
+
+            // Bulk bar visibility
+            document.getElementById('bulkBar').style.display = isBulkMode ? 'flex' : 'none';
+            if (isBulkMode) document.getElementById('bulkCount').innerText = `${t('bulkSelected')} ${toArabicNum(selectedHizbs.size)}`;
+        }
+
+        /* ════════════════════════════════════════════
+           TAB SWITCHING  (FIX #10: event delegation on tabs)
+        ════════════════════════════════════════════ */
+        document.querySelector('.tabs').addEventListener('click', e => {
+            const tab = e.target.closest('[data-tab]');
+            if (!tab) return;
+            currentTab = tab.dataset.tab;
+            isBulkMode = false; selectedHizbs.clear();
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            renderApp();
+        });
+
+        // Close modals on overlay click
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', e => {
+                if (e.target === overlay) {
+                    const id = overlay.id;
+                    if (id === 'confirmModal') dismissConfirm();
+                    else closeModal(id);
+                }
+            });
+        });
+
+        /* ════════════════════════════════════════════
+           BOOT
+        ════════════════════════════════════════════ */
+        document.documentElement.lang = state.lang;
+        document.documentElement.dir  = state.lang === 'ar' ? 'rtl' : 'ltr';
+        renderApp();
 
         if (!localStorage.getItem('rusookh_tutorial_seen')) {
-            setTimeout(() => { openTutorial(); localStorage.setItem('rusookh_tutorial_seen', 'true'); }, 500);
+            setTimeout(() => {
+                openTutorial();
+                localStorage.setItem('rusookh_tutorial_seen', 'true');
+            }, 500);
         }
     </script>
 </body>
