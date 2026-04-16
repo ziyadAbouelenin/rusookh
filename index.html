@@ -45,7 +45,6 @@
         .streak-badge svg { position: absolute; width: 100%; height: 100%; top: 0; left: 0; fill: #004D40; filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.2)); }
         .streak-number { position: relative; z-index: 1; font-size: 20px; font-weight: 900; color: #FFFFFF; margin-top: 4px; }
         
-        /* New Progress Bar CSS */
         .progress-container { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 15px; margin-bottom: 20px; }
         .progress-header { display: flex; justify-content: space-between; font-size: 14px; font-weight: bold; margin-bottom: 8px; color: var(--text); }
         .progress-bar-bg { background: var(--border); height: 10px; border-radius: 5px; overflow: hidden; position: relative; }
@@ -278,10 +277,13 @@
         const t = (key) => dict[state.lang][key] || key;
         const toArabicNum = (num) => state.lang === 'en' ? num.toString() : num.toString().replace(/[0-9]/g, d => ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'][d]);
         
+        // FIXED: Using options object for calendar instead of locale tag to avoid "BC" bug in Edge/Safari
         const formatDate = (ts) => ts ? `<bdi>${toArabicNum(new Date(ts).getDate())} ${new Date(ts).toLocaleString(state.lang==='ar'?'ar-EG':'en-GB', { month: 'short' })}</bdi>` : t('never');
         const formatHijri = (ts) => {
             if(!ts) return '';
-            try { return `<bdi>${new Intl.DateTimeFormat(state.lang === 'ar' ? 'ar-SA-u-ca-islamic' : 'en-GB-u-ca-islamic', {day:'numeric', month:'short'}).format(new Date(ts))}</bdi>`; } catch(e) { return ''; }
+            try { 
+                return `<bdi>${new Intl.DateTimeFormat(state.lang === 'ar' ? 'ar-SA' : 'en-GB', {calendar: 'islamic-umalqura', day:'numeric', month:'short'}).format(new Date(ts))}</bdi>`; 
+            } catch(e) { return ''; }
         };
 
         function toggleLanguage() { state.lang = state.lang === 'ar' ? 'en' : 'ar'; document.documentElement.lang = state.lang; document.documentElement.dir = state.lang === 'ar' ? 'rtl' : 'ltr'; renderApp(); }
@@ -351,10 +353,11 @@
             return qs.some(q => q.revCount > 0) && !qs.some(q => q.lastRevised && (Date.now() - q.lastRevised) <= (state.freshnessDays * 86400000));
         }
 
+        // FIXED: Using options object for calendar instead of locale tag to avoid "BC" bug
         function renderDateBar() {
             const d = new Date();
             const grego = new Intl.DateTimeFormat(state.lang === 'ar' ? 'ar-EG' : 'en-GB', {weekday:'long', day:'numeric', month:'long'}).format(d);
-            const hijri = new Intl.DateTimeFormat(state.lang === 'ar' ? 'ar-SA-u-ca-islamic' : 'en-GB-u-ca-islamic', {day:'numeric', month:'long', year:'numeric'}).format(d);
+            const hijri = new Intl.DateTimeFormat(state.lang === 'ar' ? 'ar-SA' : 'en-GB', {calendar: 'islamic-umalqura', day:'numeric', month:'long', year:'numeric'}).format(d);
             document.getElementById('dateBar').innerHTML = `<bdi>${grego}</bdi> &nbsp;|&nbsp; <bdi>${hijri}</bdi>`;
         }
 
@@ -423,7 +426,6 @@
         function renderGrid(container, filterType) {
             let html = '';
             
-            // Add Progress Bar for Hifz Tracker Tab
             if (filterType === 'all') {
                 let fullHizbs = 0;
                 for (let i = 1; i <= 60; i++) {
