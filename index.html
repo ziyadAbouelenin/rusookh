@@ -40,7 +40,11 @@
         .streak-banner { background: linear-gradient(to right, #00C853, #00BCD4); border-radius: 14px; padding: 15px 20px; color: white; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .streak-info .title { font-size: 12px; opacity: 0.85; }
         .streak-info .days { font-size: 16px; font-weight: bold; }
-        .streak-badge { background: rgba(255,255,255,0.2); width: 52px; height: 52px; border-radius: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; font-weight: 900; color: #004D40; }
+        
+        /* Updated Star Badge CSS */
+        .streak-badge { position: relative; width: 65px; height: 65px; display: flex; justify-content: center; align-items: center; }
+        .streak-badge svg { position: absolute; width: 100%; height: 100%; top: 0; left: 0; fill: #004D40; filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.2)); }
+        .streak-number { position: relative; z-index: 1; font-size: 20px; font-weight: 900; color: #FFFFFF; margin-top: 4px; }
         
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(75px, 1fr)); gap: 12px; }
         .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 15px 5px; text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 110px; position: relative; }
@@ -374,7 +378,13 @@
 
         function renderPlan(container) {
             let streak = calculateStreak();
-            let html = `<div class="streak-banner"><div class="streak-info"><p class="title">${t('streakTitle')}</p><p class="days">${streak === 0 ? t('streakEmpty') : `${toArabicNum(streak)} ${state.lang === 'en' ? 'Days' : 'أيام متواصلة'}`}</p></div><div class="streak-badge">⭐<br>${toArabicNum(streak)}</div></div>`;
+            
+            // NEW STAR SVG BADGE
+            let html = `<div class="streak-banner"><div class="streak-info"><p class="title">${t('streakTitle')}</p><p class="days">${streak === 0 ? t('streakEmpty') : `${toArabicNum(streak)} ${state.lang === 'en' ? 'Days' : 'أيام متواصلة'}`}</p></div>
+            <div class="streak-badge">
+                <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                <span class="streak-number">${toArabicNum(streak)}</span>
+            </div></div>`;
             
             html += `<h2 class="section-title">${t('recent')}</h2>`;
             if (state.plan.recentHizbs.length === 0) html += `<p style="color:gray; font-size:14px;">-</p>`;
@@ -408,7 +418,6 @@
                 
                 let latestDate = Math.max(...qs.map(q => q.lastRevised || 0));
 
-                // ADDED HIZB LABEL ABOVE NUMBER
                 html += `<div class="card ${cardClass}" onclick="${isBulkMode ? `toggleHizbSelection(${i})` : `openHizbModal(${i})`}">
                     <span style="font-size:11px; color:gray; margin-bottom:-2px;">${t('hizb')}</span>
                     <span class="hizb-num">${toArabicNum(i)}</span>
