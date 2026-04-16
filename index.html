@@ -303,21 +303,32 @@
             let recentHizbs = memHizbs.slice(-rCount);
             let seqPool = memHizbs.filter(h => !recentHizbs.includes(h)); 
 
-            if (state.plan.date !== todayStr || (state.plan.seqHizbs.length === 0 && seqPool.length > 0)) {
+            // NEW LOGIC: Update if it's a new day, if we have empty slots to fill, OR if our current list is larger than the allowed setting (e.g. setting changed to 0)
+            let needsUpdate = state.plan.date !== todayStr || 
+                              (state.plan.seqHizbs.length < sCount && seqPool.length > 0) || 
+                              (state.plan.seqHizbs.length > sCount);
+
+            if (needsUpdate) {
                 let oldSeq = state.plan.seqHizbs || [];
                 let oldDone = state.plan.seqDone || [];
                 let newSeq = [];
                 let newDone = [];
 
+                // Carry over unfinished items, but ONLY up to the maximum allowed by sCount
                 oldSeq.forEach((h, i) => { 
                     let keep = (state.plan.date !== todayStr) ? !oldDone[i] : true;
-                    if (keep && seqPool.includes(h)) { newSeq.push(h); newDone.push(state.plan.date !== todayStr ? false : oldDone[i]); } 
+                    // STRICT LIMIT CHECK: Never push if newSeq is already full or if sCount is 0
+                    if (keep && seqPool.includes(h) && newSeq.length < sCount) { 
+                        newSeq.push(h); 
+                        newDone.push(state.plan.date !== todayStr ? false : oldDone[i]); 
+                    } 
                 });
 
                 let lastHizb = oldSeq.length > 0 ? Math.max(...oldSeq) : 0;
                 let maxCanAdd = Math.min(sCount, seqPool.length);
                 let safetyCounter = 0; 
 
+                // Fill remaining slots up to sCount
                 while(newSeq.length < maxCanAdd && safetyCounter < 100) {
                     safetyCounter++;
                     let nextCandidates = seqPool.filter(h => h > lastHizb && !newSeq.includes(h));
@@ -335,6 +346,7 @@
                 state.plan = { date: todayStr, seqHizbs: newSeq, seqDone: newDone, recentHizbs: recentHizbs };
                 saveState();
             } else {
+                // Keep recent updated even if far revision doesn't change
                 state.plan.recentHizbs = recentHizbs;
                 saveState();
             }
