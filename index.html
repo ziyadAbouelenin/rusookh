@@ -579,10 +579,18 @@
             document.getElementById('settingsModal').style.display = 'flex'; 
         }
         function saveSettings() { 
-            state.freshnessDays = parseInt(document.getElementById('freshnessInput').value) || 30; 
-            state.planConfig.recent = parseInt(document.getElementById('recentInput').value) || 2; 
-            state.planConfig.seq = parseInt(document.getElementById('seqInput').value) || 4; 
-            saveState(); closeModal('settingsModal'); renderApp(); 
+            let fVal = parseInt(document.getElementById('freshnessInput').value);
+            let rVal = parseInt(document.getElementById('recentInput').value);
+            let sVal = parseInt(document.getElementById('seqInput').value);
+
+            // If the user leaves it blank (NaN), use the default. Otherwise, use their exact number (even if it's 0!)
+            state.freshnessDays = isNaN(fVal) ? 30 : fVal; 
+            state.planConfig.recent = isNaN(rVal) ? 2 : rVal; 
+            state.planConfig.seq = isNaN(sVal) ? 4 : sVal; 
+            
+            saveState(); 
+            closeModal('settingsModal'); 
+            renderApp(); 
         }
         function runQuickSetup() {
             let target = parseInt(document.getElementById('quickSetupInput').value);
