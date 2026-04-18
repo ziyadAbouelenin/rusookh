@@ -6,7 +6,6 @@
     <title>Rusookh - رسوخ</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#059669">
-    <!-- FIX #13: use a local icon fallback via data URI instead of Wikipedia URL -->
     <link rel="apple-touch-icon" href="icon-192.png">
 
     <style>
@@ -22,7 +21,6 @@
 
         /* ── Reset ── */
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); padding-bottom: 100px; }
 
         /* ── Header ── */
         header {
@@ -31,7 +29,6 @@
             justify-content: space-between; align-items: center;
             position: sticky; top: 0; z-index: 100; gap: 8px; flex-wrap: wrap;
         }
-        /* FIX #5: header is less crowded — export/import moved to settings */
         .header-left  { display: flex; gap: 8px; align-items: center; }
         .header-right { display: flex; gap: 8px; align-items: center; }
 
@@ -51,11 +48,27 @@
         .btn-danger   { background: var(--danger); color: #fff; }
         .btn-icon     { background: transparent; border: none; font-size: 20px; color: var(--text); padding: 5px; }
 
-        /* ── Tabs ── */
-        .tabs { display: flex; background: var(--surface); border-bottom: 1px solid var(--border); overflow-x: auto; white-space: nowrap; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
-        .tabs::-webkit-scrollbar { display: none; }
-        .tab { flex: 1; text-align: center; padding: 14px 8px; cursor: pointer; font-weight: 600; color: var(--text-muted); border-bottom: 3px solid transparent; min-width: 80px; font-size: 13px; transition: color .2s; }
-        .tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+        /* ── Bottom nav ── */
+        body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); padding-bottom: 76px; }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 64px; background: var(--surface); border-top: 1px solid var(--border); display: flex; z-index: 100; box-shadow: 0 -2px 12px rgba(0,0,0,0.07); }
+        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; cursor: pointer; border: none; background: transparent; padding: 6px 2px; transition: background .15s; -webkit-tap-highlight-color: transparent; }
+        .nav-item:active { background: var(--bg); }
+        .nav-icon { font-size: 20px; line-height: 1; transition: transform .15s; }
+        .nav-label { font-size: 9.5px; font-weight: 600; color: var(--text-muted); letter-spacing: 0.2px; transition: color .15s; white-space: nowrap; }
+        .nav-item.active .nav-icon { transform: translateY(-2px); }
+        .nav-item[data-tab="plan"].active      .nav-label { color: #059669; }
+        .nav-item[data-tab="overdue"].active   .nav-label { color: #E53935; }
+        .nav-item[data-tab="tilawah"].active   .nav-label { color: #7C3AED; }
+        .nav-item[data-tab="hifz"].active      .nav-label { color: #0284C7; }
+        .nav-item[data-tab="listening"].active .nav-label { color: #D97706; }
+        .nav-item[data-tab="schedule"].active  .nav-label { color: #0D9488; }
+        .nav-pip { width: 4px; height: 4px; border-radius: 50%; margin-top: 1px; }
+        .nav-item[data-tab="plan"].active      .nav-pip { background: #059669; }
+        .nav-item[data-tab="overdue"].active   .nav-pip { background: #E53935; }
+        .nav-item[data-tab="tilawah"].active   .nav-pip { background: #7C3AED; }
+        .nav-item[data-tab="hifz"].active      .nav-pip { background: #0284C7; }
+        .nav-item[data-tab="listening"].active .nav-pip { background: #D97706; }
+        .nav-item[data-tab="schedule"].active  .nav-pip { background: #0D9488; }
 
         /* ── Main ── */
         main { padding: 18px 16px; max-width: 800px; margin: 0 auto; }
@@ -102,7 +115,6 @@
         .modal { background: var(--surface); padding: 20px; border-radius: 16px; width: 90%; max-width: 440px; max-height: 88vh; overflow-y: auto; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .modal-header h2 { font-size: 17px; font-weight: 700; }
-        /* FIX: close button uses × instead of X */
         .close-btn { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; flex-shrink: 0; }
 
         /* ── Quarter rows ── */
@@ -113,7 +125,7 @@
         .date-badge { font-size: 11px; color: var(--primary); background: var(--primary-bg); padding: 3px 8px; border-radius: 6px; cursor: pointer; border: none; margin-top: 4px; font-family: inherit; font-weight: 600; }
 
         /* ── Bulk bar ── */
-        .bulk-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--surface); padding: 14px 16px; box-shadow: 0 -2px 10px rgba(0,0,0,.1); display: none; justify-content: space-between; align-items: center; z-index: 150; flex-wrap: wrap; gap: 10px; }
+        .bulk-bar { position: fixed; bottom: 64px; left: 0; width: 100%; background: var(--surface); padding: 14px 16px; box-shadow: 0 -2px 10px rgba(0,0,0,.1); display: none; justify-content: space-between; align-items: center; z-index: 150; flex-wrap: wrap; gap: 10px; }
 
         /* ── Settings ── */
         .settings-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; text-align: right; gap: 12px; }
@@ -132,13 +144,13 @@
         #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
         /* ── Custom confirm modal ── */
-        /* FIX #7 & tilawah confirm: custom dialog instead of browser confirm() */
         #confirmModal .confirm-msg { font-size: 15px; margin-bottom: 20px; line-height: 1.6; }
         #confirmModal .confirm-actions { display: flex; gap: 10px; }
         #confirmModal .confirm-actions button { flex: 1; }
 
         /* ── LTR override ── */
         [dir="ltr"] .settings-row { text-align: left; }
+        
         /* ── SCHEDULE TAB ── */
         .sched-form { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 24px; }
         .sched-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
@@ -174,7 +186,6 @@
 <body>
 
     <header>
-        <!-- FIX #5: export/import removed from header, moved to settings modal -->
         <div class="header-left">
             <input type="text" id="userNameInput" placeholder="الاسم" oninput="updateName(this.value)" style="max-width:110px;">
             <button class="btn-outline" onclick="toggleLanguage()" id="langBtn">EN</button>
@@ -187,18 +198,41 @@
 
     <div class="date-bar" id="dateBar"></div>
 
-    <div class="tabs">
-        <div class="tab active" data-tab="plan"      id="tabPlan">خطة اليوم</div>
-        <div class="tab"        data-tab="overdue"   id="tabOverdue">متأخرة</div>
-        <div class="tab"        data-tab="tilawah"   id="tabTilawah">ورد القراءة</div>
-        <div class="tab"        data-tab="hifz"      id="tabHifz">تتبع الحفظ</div>
-        <div class="tab"        data-tab="listening" id="tabListening">ورد الاستماع</div>
-        <div class="tab"        data-tab="schedule"  id="tabSchedule">خطة الحفظ</div>
-    </div>
-
     <main id="mainContent"></main>
 
-    <!-- Bulk action bar -->
+    <nav class="bottom-nav" id="bottomNav">
+        <button class="nav-item active" data-tab="plan" id="tabPlan">
+            <span class="nav-icon">📋</span>
+            <span class="nav-label">خطة اليوم</span>
+            <span class="nav-pip"></span>
+        </button>
+        <button class="nav-item" data-tab="overdue" id="tabOverdue">
+            <span class="nav-icon">⏰</span>
+            <span class="nav-label">متأخرة</span>
+            <span class="nav-pip"></span>
+        </button>
+        <button class="nav-item" data-tab="tilawah" id="tabTilawah">
+            <span class="nav-icon">📖</span>
+            <span class="nav-label">ورد القراءة</span>
+            <span class="nav-pip"></span>
+        </button>
+        <button class="nav-item" data-tab="hifz" id="tabHifz">
+            <span class="nav-icon">🟩</span>
+            <span class="nav-label">تتبع الحفظ</span>
+            <span class="nav-pip"></span>
+        </button>
+        <button class="nav-item" data-tab="listening" id="tabListening">
+            <span class="nav-icon">🎧</span>
+            <span class="nav-label">الاستماع</span>
+            <span class="nav-pip"></span>
+        </button>
+        <button class="nav-item" data-tab="schedule" id="tabSchedule">
+            <span class="nav-icon">🗓️</span>
+            <span class="nav-label">خطة الحفظ</span>
+            <span class="nav-pip"></span>
+        </button>
+    </nav>
+
     <div class="bulk-bar" id="bulkBar">
         <span id="bulkCount" style="font-weight:700;">تم تحديد 0</span>
         <div style="display:flex;gap:10px;align-items:center;">
@@ -208,10 +242,8 @@
         </div>
     </div>
 
-    <!-- Toast notification -->
     <div id="toast"></div>
 
-    <!-- ══ Hizb detail modal ══ -->
     <div class="modal-overlay" id="hizbModal">
         <div class="modal">
             <div class="modal-header">
@@ -223,7 +255,19 @@
         </div>
     </div>
 
-    <!-- ══ Settings modal ══ -->
+    <div class="modal-overlay" id="replaceModal">
+        <div class="modal" style="max-width: 320px;">
+            <div class="modal-header">
+                <h2 id="replaceModalTitle">استبدال الحزب</h2>
+                <button class="close-btn" onclick="closeModal('replaceModal')">×</button>
+            </div>
+            <input type="number" id="replaceInput" min="1" max="60" style="width:100%;margin-bottom:15px;font-size:16px;padding:10px;" placeholder="رقم الحزب (1-60)">
+            <input type="hidden" id="replaceType">
+            <input type="hidden" id="replaceIdx">
+            <button class="btn-primary" style="width:100%;" id="replaceExecBtn" onclick="executeReplace()">استبدال</button>
+        </div>
+    </div>
+
     <div class="modal-overlay" id="settingsModal">
         <div class="modal">
             <div class="modal-header">
@@ -243,6 +287,10 @@
                 <span id="setSeq">أحزاب المراجعة البعيدة يومياً</span>
                 <input type="number" id="seqInput" min="0" max="10">
             </div>
+            <div class="settings-row">
+                <span id="setDailyRead">مقدار القراءة اليومية (أجزاء)</span>
+                <input type="number" id="dailyReadInput" min="1" max="30">
+            </div>
 
             <button id="settingsSaveBtn" class="btn-primary" style="width:100%;margin-top:10px;" onclick="saveSettings()">حفظ</button>
 
@@ -255,7 +303,6 @@
             </div>
 
             <hr>
-            <!-- FIX #5: export/import moved here -->
             <h3 style="color:var(--primary);margin-bottom:12px;" id="dataTitle">البيانات</h3>
             <div style="display:flex;gap:10px;">
                 <button class="btn-outline" style="flex:1;" onclick="exportData()" id="exportBtn">تصدير ⬇</button>
@@ -266,7 +313,6 @@
             </div>
 
             <hr>
-            <!-- Selective Reset -->
             <h3 style="color:var(--danger);margin-bottom:10px;">⚠️ إعادة تعيين</h3>
             <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">أدخل 0 لإعادة تعيين الكل، أو رقم الحزب لإعادة تعيين ما بعده فقط.</p>
             <div style="display:flex;gap:10px;">
@@ -276,7 +322,6 @@
         </div>
     </div>
 
-    <!-- Reset warning modal -->
     <div class="modal-overlay" id="resetWarningModal">
         <div class="modal">
             <div class="modal-header">
@@ -294,7 +339,6 @@
         </div>
     </div>
 
-    <!-- ══ Tutorial modal ══ -->
     <div class="modal-overlay" id="tutorialModal">
         <div class="modal">
             <div class="modal-header">
@@ -306,7 +350,6 @@
         </div>
     </div>
 
-    <!-- ══ FIX #7 & FIX tilawah confirm: custom confirm dialog ══ -->
     <div class="modal-overlay" id="confirmModal">
         <div class="modal">
             <div class="modal-header">
@@ -321,9 +364,6 @@
         </div>
     </div>
 
-    <!-- ══ Audio error modal ══ -->
-    <!-- FIX #8: audio errors now shown via toast instead of swallowed -->
-
     <script>
         /* ════════════════════════════════════════════
            SERVICE WORKER
@@ -334,37 +374,42 @@
            CONSTANTS & VERSION
         ════════════════════════════════════════════ */
         const STORAGE_KEY   = 'rusookh_web_data';
-        const STATE_VERSION = 2; // FIX #11: schema versioning
+        const STATE_VERSION = 5; // Bumped version for cursor memory
         const getTodayStr   = () => new Date().toISOString().split('T')[0];
 
         /* ════════════════════════════════════════════
-           STATE INITIALISATION & MIGRATION  (FIX #11)
+           STATE INITIALISATION & MIGRATION
         ════════════════════════════════════════════ */
         function defaultState() {
             return {
                 version: STATE_VERSION,
                 userName: '', lang: 'ar', freshnessDays: 30, hizbNotes: {},
-                planConfig: { recent: 2, seq: 4 },
+                planConfig: { recent: 2, seq: 4, dailyRead: 1 }, 
                 quarters: Array.from({ length: 240 }, (_, i) => ({
                     id: i, hizb: Math.floor(i / 4) + 1, part: (i % 4) + 1,
                     revCount: 0, lastRevised: 0
                 })),
                 listening: Array.from({ length: 60 }, (_, i) => ({ hizb: i + 1, listened: false })),
                 tilawah: Array(30).fill(0),
-                plan: { date: '', seqHizbs: [], seqDone: [], recentHizbs: [] }
+                plan: { date: '', seqHizbs: [], seqDone: [], recentHizbs: [], manualHizbs: [], manualDone: [], lastSeqHizb: 0 },
+                lastAudioPos: { hizb: null, ayahIndex: 0 }
             };
         }
 
         function migrateState(s) {
-            // Guard every field that may be missing in older saves
             if (!s.version)      s.version      = 1;
-            if (!s.planConfig)   s.planConfig   = { recent: 2, seq: 4 };
+            if (!s.planConfig)   s.planConfig   = { recent: 2, seq: 4, dailyRead: 1 };
+            if (s.planConfig.dailyRead === undefined) s.planConfig.dailyRead = 1; 
             if (!s.tilawah)      s.tilawah      = Array(30).fill(0);
             if (!s.hizbNotes)    s.hizbNotes    = {};
             if (!s.listening)    s.listening    = Array.from({ length: 60 }, (_, i) => ({ hizb: i + 1, listened: false }));
-            if (!s.plan)         s.plan         = { date: '', seqHizbs: [], seqDone: [], recentHizbs: [] };
+            if (!s.plan)         s.plan         = { date: '', seqHizbs: [], seqDone: [], recentHizbs: [], manualHizbs: [], manualDone: [], lastSeqHizb: 0 };
             if (!s.plan.seqDone) s.plan.seqDone = [];
             if (!s.plan.recentHizbs) s.plan.recentHizbs = [];
+            if (!s.plan.manualHizbs) s.plan.manualHizbs = [];
+            if (!s.plan.manualDone)  s.plan.manualDone  = [];
+            if (s.plan.lastSeqHizb === undefined) s.plan.lastSeqHizb = 0;
+            if (!s.lastAudioPos) s.lastAudioPos = { hizb: null, ayahIndex: 0 };
             s.version = STATE_VERSION;
             return s;
         }
@@ -382,10 +427,12 @@
         let audioQueue    = [];
         let playingHizb   = null;
         let isPlaying     = false;
-        let _pendingSave  = false; // FIX #1: batched save flag
+        let _pendingSave  = false;
+        let currentAyahIndex = 0;  // tracks position within audioQueue for resume
+        let currentSurahName = ''; // surah name at currentAyahIndex
 
         /* ════════════════════════════════════════════
-           PERSISTENCE  (FIX #1: batched saveState)
+           PERSISTENCE
         ════════════════════════════════════════════ */
         function saveState() {
             if (_pendingSave) return;
@@ -425,6 +472,7 @@
                 edit:'تعديل', overdueLabel:'متأخرة', notesHolder:'ملاحظات وتنبيهات الحزب...',
                 namePlaceholder:'الاسم', settingsTitle:'الإعدادات', settingsSaveBtn:'حفظ',
                 setFreshness:'صلاحية المراجعة (بالأيام)', setRecent:'أحزاب المراجعة القريبة يومياً', setSeq:'أحزاب المراجعة البعيدة يومياً',
+                setDailyRead:'مقدار القراءة اليومية (أجزاء)', 
                 quickSetupTitle:'إعداد سريع', quickSetupDesc:'حدد آخر حزب تحفظه ليتم تعيين ما قبله كمحفوظ بتاريخ اليوم:', quickSetupBtn:'تطبيق',
                 bulkSelected:'تم تحديد', bulkToday:'مُراجعة اليوم', bulkCancel:'إلغاء',
                 dataTitle:'البيانات',
@@ -433,6 +481,10 @@
                 audioError:'تعذّر تحميل الصوت. تحقق من اتصالك بالإنترنت.',
                 importSuccess:'تم الاستيراد بنجاح ✓',
                 importError:'فشل الاستيراد: الملف غير صحيح أو تالف.',
+                manualAdd: '📌 إضافة لخطة اليوم',
+                addedToPlan: 'تمت الإضافة لخطة اليوم',
+                alreadyInPlan: 'الحزب موجود مسبقاً في الخطة',
+                manualSection: '📌 محددة يدوياً',
                 tutTitle:'مرحباً بك في رسوخ (الحصون الخمسة)',
                 tutBody:`
                     <h3>مقدمة عن تقسيم القرآن:</h3>
@@ -441,12 +493,12 @@
                     <h3>1. خطة اليوم الذكية</h3>
                     <ul>
                         <li><b>المراجعة القريبة:</b> يظهر لك أحدث الأحزاب التي حفظتها لترسيخها. عدد الأحزاب يومياً قابل للتعديل من الإعدادات.</li>
-                        <li><b>المراجعة البعيدة:</b> يمر بك على محفوظاتك القديمة بالترتيب. الأحزاب تبقى حتى تضغط <b>إتمام</b>.</li>
+                        <li><b>المراجعة البعيدة:</b> تعطي الخطة الأولوية دائماً للأحزاب الأقدم (المتأخرة) لسحبها إلى خطة اليوم، ثم تكمل المرور على محفوظاتك القديمة بشكل متسلسل ومستمر.</li>
                         <li><b>سلسلة المراجعة:</b> تتبع عدد الأيام المتواصلة في المراجعة.</li>
                     </ul>
 
                     <h3>2. تتبع الحفظ (الكل)</h3>
-                    <p>عرض شبكي لجميع الـ 60 حزباً. اضغط على أي حزب لفتح تفاصيله وتعديل عدد مرات المراجعة وتاريخها لكل ربع. يمكنك أيضاً إضافة ملاحظات خاصة بكل حزب.</p>
+                    <p>عرض شبكي لجميع الـ 60 حزباً. اضغط على أي حزب لفتح تفاصيله وتعديل عدد مرات المراجعة وتاريخها لكل ربع. يمكنك أيضاً إضافة ملاحظات خاصة بكل حزب، وإضافة أي حزب يدوياً إلى خطة اليوم.</p>
                     <ul>
                         <li><b>اللون الأخضر:</b> الحزب محفوظ كاملاً (4 أرباع).</li>
                         <li><b>اللون الأحمر:</b> الحزب متأخر عن المراجعة (أكثر من {DAYS} يوماً).</li>
@@ -479,7 +531,7 @@
                 tutClose:'حسناً، فهمت'
             },
             en: {
-                plan:'Plan', overdue:'Overdue', tilawah:'Daily Read', hifz:'Hifz Tracker', listening:'Daily Listen', schedule:'Schedule',
+                plan:'Daily Plan', overdue:'Overdue', tilawah:'Daily Read', hifz:'Hifz Tracker', listening:'Daily Listen', schedule:'Schedule',
                 scheduleTitle:'Weekly Memorization Schedule Generator',
                 scheduleDesc:'Enter your details to generate a weekly Hifz & Revision schedule based on the 5 Fortresses method.',
                 schedJuzDone:'Juz already memorized', schedPagesPerDay:'New pages to memorize per day',
@@ -503,6 +555,7 @@
                 edit:'Edit', overdueLabel:'Overdue', notesHolder:'Hizb notes...',
                 namePlaceholder:'Name', settingsTitle:'Settings', settingsSaveBtn:'Save',
                 setFreshness:'Revision Validity (Days)', setRecent:'Near Revision Hizbs / day', setSeq:'Far Revision Hizbs / day',
+                setDailyRead:'Daily Read Amount (Juz)', 
                 quickSetupTitle:'Quick Setup', quickSetupDesc:'Enter the last Hizb you memorized to mark it and all previous as done today:', quickSetupBtn:'Apply',
                 bulkSelected:'Selected', bulkToday:'Revised Today', bulkCancel:'Cancel',
                 dataTitle:'Data',
@@ -511,20 +564,24 @@
                 audioError:'Could not load audio. Check your internet connection.',
                 importSuccess:'Import successful ✓',
                 importError:'Import failed: file is invalid or corrupted.',
+                manualAdd: '📌 Add to Daily Plan',
+                addedToPlan: 'Added to Daily Plan',
+                alreadyInPlan: 'Already in the plan',
+                manualSection: '📌 Manually Added',
                 tutTitle:'Welcome to Rusookh',
                 tutBody:`
                     <h3>Quran Structure:</h3>
-                    <p>The Quran is divided into <b>30 Juz'</b>, each containing <b>2 Hizbs</b> (60 total). Every Hizb has <b>4 Quarters</b>. Rusookh tracks your progress down to the quarter level using the 5 Fortresses method.</p>
+                    <p>The Quran is divided into <b>30 Juz'</b>, each containing <b>2 Hizbs</b> (60 total). Every Hizb has <b>4 Quarters</b>. This app tracks your progress accurately using the 5 Fortresses method.</p>
 
                     <h3>1. Smart Daily Plan</h3>
                     <ul>
-                        <li><b>Near Revision:</b> Shows your most recently memorized Hizbs to keep them solid. Adjust how many appear daily in Settings.</li>
-                        <li><b>Far Revision:</b> Cycles through older memorization in order. Hizbs stay until you tap <b>Done</b>.</li>
+                        <li><b>Near Revision:</b> Shows your most recently memorized Hizbs to keep them solid. The daily count is adjustable in Settings.</li>
+                        <li><b>Far Revision:</b> Automatically prioritizes overdue (late) Hizbs first, then continues cycling through your older memorization sequentially.</li>
                         <li><b>Streak:</b> Tracks how many consecutive days you have revised.</li>
                     </ul>
 
                     <h3>2. Hifz Tracker (All)</h3>
-                    <p>A full grid of all 60 Hizbs. Tap any card to open its details — adjust revision count and date for each quarter, and add personal notes.</p>
+                    <p>A full grid of all 60 Hizbs. Tap any card to open its details — adjust revision count and date for each quarter, add personal notes, or manually pin a Hizb to today's plan.</p>
                     <ul>
                         <li><b>Green:</b> Fully memorized (all 4 quarters).</li>
                         <li><b>Red:</b> Overdue — not revised in more than {DAYS} days.</li>
@@ -540,7 +597,7 @@
                     <p>Track your daily reading Khatma. Tap any Juz to mark it as read. When you finish, tap <b>New Khatma</b> to reset and start again.</p>
 
                     <h3>6. Daily Listening</h3>
-                    <p>Track which Hizbs you have listened to. Tap a card to play it directly (requires internet) or mark it as listened. Useful for passive revision.</p>
+                    <p>Track which Hizbs you have listened to. Tap a card to play it directly (requires internet) or mark it as listened.</p>
 
                     <h3>7. Weekly Schedule Generator</h3>
                     <p>In the <b>Schedule</b> tab, enter how many Juz you have memorized and your daily page target. The app generates a complete weekly table covering: new memorization, near & far revision, preparation, and continuous reading.</p>
@@ -551,7 +608,7 @@
                         <li><b>Near / Far Revision count:</b> How many Hizbs appear in your daily plan.</li>
                         <li><b>Quick Setup:</b> Enter your last memorized Hizb to mark all previous ones as done today.</li>
                         <li><b>Export / Import:</b> Back up your data and move it between devices.</li>
-                        <li><b>Reset:</b> Enter 0 to wipe all data, or a Hizb number to reset from that point forward. A backup is always exported before any reset.</li>
+                        <li><b>Reset:</b> Enter 0 to wipe all data, or a Hizb number to reset from that point forward. A backup is automatically exported before resetting.</li>
                     </ul>
                 `,
                 tutClose:'Got it!'
@@ -576,7 +633,7 @@
         };
 
         /* ════════════════════════════════════════════
-           TOAST  (FIX #8 feedback utility)
+           TOAST
         ════════════════════════════════════════════ */
         let _toastTimer = null;
         function showToast(msg, duration = 2800) {
@@ -588,7 +645,7 @@
         }
 
         /* ════════════════════════════════════════════
-           CUSTOM CONFIRM  (FIX #7 & FIX tilawah native confirm)
+           CUSTOM CONFIRM
         ════════════════════════════════════════════ */
         let _confirmResolve = null;
         function showConfirm(msg, title) {
@@ -620,32 +677,25 @@
         function updateName(val) { state.userName = val; saveState(); }
 
         /* ════════════════════════════════════════════
-           OVERDUE CHECK  (FIX #4: use every() correctly)
-           A hizb is "overdue" if ALL its started quarters have gone past freshnessDays.
-           A quarter is "started" if revCount > 0.
+           OVERDUE CHECK
         ════════════════════════════════════════════ */
         function isHizbOverdue(hizbNum) {
             const qs      = state.quarters.filter(q => q.hizb === hizbNum);
             const started = qs.filter(q => q.revCount > 0);
-            if (started.length === 0) return false; // not memorized at all
+            if (started.length === 0) return false; 
             const threshold = state.freshnessDays * 86400000;
-            // Overdue if NO started quarter has been revised recently
             return !started.some(q => q.lastRevised && (Date.now() - q.lastRevised) <= threshold);
         }
 
         /* ════════════════════════════════════════════
-           STREAK  (FIX #2: only count actual revision actions, not date-editing)
-           We track "revision action dates" separately via a lightweight set
-           stored in state.revisionDays.
+           STREAK
         ════════════════════════════════════════════ */
-        // Ensure revisionDays exists (migration-safe)
         if (!state.revisionDays) state.revisionDays = [];
 
         function recordRevisionToday() {
             const today = getTodayStr();
             if (!state.revisionDays.includes(today)) {
                 state.revisionDays.push(today);
-                // Keep at most 400 entries (> 1 year of daily data)
                 if (state.revisionDays.length > 400) state.revisionDays.shift();
                 saveState();
             }
@@ -659,7 +709,6 @@
             const tempDate     = new Date(check); tempDate.setDate(tempDate.getDate() - 1);
             const yesterdayStr = tempDate.toISOString().split('T')[0];
 
-            // Allow streak to continue if last revision was yesterday (not yet today)
             if (!days.has(todayStr) && days.has(yesterdayStr)) {
                 check.setDate(check.getDate() - 1);
             }
@@ -672,7 +721,7 @@
         }
 
         /* ════════════════════════════════════════════
-           DAILY PLAN
+           DAILY PLAN (FIX: Continuous Cursor Engine)
         ════════════════════════════════════════════ */
         function calculateDailyPlan() {
             const todayStr = getTodayStr();
@@ -684,48 +733,136 @@
             const seqPool    = memHizbs.filter(h => !recentHizbs.includes(h));
 
             const isNewDay    = state.plan.date !== todayStr;
-            const activePlan  = state.plan.seqHizbs.filter((h, i) => !state.plan.seqDone[i]);
-            const needsUpdate = isNewDay
-                || (activePlan.length < sCount && seqPool.filter(h => !state.plan.seqHizbs.includes(h)).length > 0)
-                || (state.plan.seqHizbs.length > sCount);
+            const planDateStr = state.plan.date || todayStr;
+            const [y, m, d] = planDateStr.split('-').map(Number);
+            const planDateTime = new Date(y, m - 1, d).getTime();
+
+            // A seq hizb is done only if explicitly checked — never auto-promote from quarter dates
+            // (auto-promote was preventing unchecking and caused tilawah to corrupt the plan)
+            const isActuallyDone = (h, i) => {
+                return !!(state.plan.seqDone && state.plan.seqDone[i]);
+            };
+
+            const isManualDone = (h, i) => {
+                return !!(state.plan.manualDone && state.plan.manualDone[i]);
+            };
+
+            // Manual items carryover check
+            if (isNewDay && state.plan.manualHizbs) {
+                const keepMan = [], keepManDone = [];
+                state.plan.manualHizbs.forEach((h, i) => {
+                    if (!isManualDone(h, i)) {
+                        keepMan.push(h);
+                        keepManDone.push(false);
+                    }
+                });
+                state.plan.manualHizbs = keepMan;
+                state.plan.manualDone = keepManDone;
+            }
+
+            const needsUpdate = isNewDay || (state.plan.seqHizbs.length > sCount);
 
             if (needsUpdate) {
                 const oldSeq  = state.plan.seqHizbs || [];
-                const oldDone = state.plan.seqDone   || [];
                 let newSeq = [], newDone = [];
 
+                // 1. Keep actively incomplete items from previous plan
                 oldSeq.forEach((h, i) => {
-                    const keep = isNewDay ? !oldDone[i] : true;
-                    if (keep && seqPool.includes(h) && newSeq.length < sCount) {
+                    if (!isActuallyDone(h, i) && seqPool.includes(h) && newSeq.length < sCount) {
                         newSeq.push(h);
-                        newDone.push(isNewDay ? false : oldDone[i]);
+                        newDone.push(false);
                     }
                 });
 
-                let lastHizb    = oldSeq.length > 0 ? Math.max(...oldSeq) : 0;
-                let safety      = 0;
                 const maxCanAdd = Math.min(sCount, seqPool.length);
 
-                while (newSeq.length < maxCanAdd && safety < 100) {
-                    safety++;
-                    const candidates = seqPool.filter(h => h > lastHizb && !newSeq.includes(h));
-                    if (candidates.length > 0) {
-                        newSeq.push(candidates[0]);
-                        newDone.push(false);
-                        lastHizb = candidates[0];
-                    } else {
-                        lastHizb = 0;
-                        if (seqPool.filter(h => !newSeq.includes(h)).length === 0) break;
-                    }
+                // 2. PRIORITY: Overdue Hizbs
+                const overdueHizbs = seqPool.filter(h => isHizbOverdue(h) && !newSeq.includes(h)).sort((a,b) => a-b);
+                for (let h of overdueHizbs) {
+                    if (newSeq.length >= maxCanAdd) break;
+                    newSeq.push(h);
+                    newDone.push(false);
                 }
 
-                state.plan = { date: todayStr, seqHizbs: newSeq, seqDone: newDone, recentHizbs };
-                saveState(); // Only save when plan actually changed
+                // 3. SEQUENCE: Continuous Cursor Fill
+                let seqCursor = state.plan.lastSeqHizb || 0;
+                let safety = 0;
+
+                while (newSeq.length < maxCanAdd && safety < seqPool.length + 5) {
+                    safety++;
+                    let candidates = seqPool.filter(h => h > seqCursor && !newSeq.includes(h));
+                    
+                    // Wrap around if we reach the end of the pool
+                    if (candidates.length === 0) {
+                        seqCursor = 0;
+                        candidates = seqPool.filter(h => h > seqCursor && !newSeq.includes(h));
+                        if (candidates.length === 0) break; // Exhausted
+                    }
+
+                    let nextHizb = candidates.sort((a,b) => a-b)[0];
+                    newSeq.push(nextHizb);
+                    newDone.push(false);
+                    
+                    // Remember the cursor position
+                    state.plan.lastSeqHizb = nextHizb;
+                    seqCursor = nextHizb;
+                }
+
+                state.plan.date = todayStr;
+                state.plan.seqHizbs = newSeq;
+                state.plan.seqDone = newDone;
+                state.plan.recentHizbs = recentHizbs;
+                saveState(); 
             } else {
                 state.plan.recentHizbs = recentHizbs;
-                // FIX #1: don't saveState here on every render if nothing changed
+                saveState();
             }
         }
+
+        // Add to plan directly from Modal
+        window.addToDailyPlan = function(hizb) {
+            const todayStr = getTodayStr();
+            if (state.plan.date !== todayStr) calculateDailyPlan(); 
+            if (!state.plan.manualHizbs) { state.plan.manualHizbs = []; state.plan.manualDone = []; }
+            
+            if (state.plan.recentHizbs.includes(hizb) || state.plan.seqHizbs.includes(hizb) || state.plan.manualHizbs.includes(hizb)) {
+                showToast(t('alreadyInPlan'));
+                return;
+            }
+
+            state.plan.manualHizbs.push(hizb);
+            state.plan.manualDone.push(false);
+            saveState();
+            showToast(t('addedToPlan'));
+            closeModal('hizbModal');
+            renderApp();
+        };
+
+        window.executeReplace = function() {
+            const type    = document.getElementById('replaceType').value;
+            const idx     = parseInt(document.getElementById('replaceIdx').value);
+            const newHizb = parseInt(document.getElementById('replaceInput').value);
+            if (isNaN(newHizb) || newHizb < 1 || newHizb > 60) {
+                showToast(state.lang === 'ar' ? 'أدخل رقماً بين 1 و 60' : 'Enter a number between 1 and 60');
+                return;
+            }
+            // Exclude the slot being replaced from duplicate check
+            const seqCheck    = type === 'seq'    ? state.plan.seqHizbs.filter((_,i)    => i !== idx) : state.plan.seqHizbs;
+            const recentCheck = type === 'recent' ? state.plan.recentHizbs.filter((_,i) => i !== idx) : state.plan.recentHizbs;
+            if (recentCheck.includes(newHizb) || seqCheck.includes(newHizb) || (state.plan.manualHizbs||[]).includes(newHizb)) {
+                showToast(t('alreadyInPlan'));
+                return;
+            }
+            if (type === 'seq') {
+                state.plan.seqHizbs[idx] = newHizb;
+                state.plan.seqDone[idx]  = false;
+            } else if (type === 'recent') {
+                state.plan.recentHizbs[idx] = newHizb;
+            }
+            saveState();
+            closeModal('replaceModal');
+            renderApp();
+        };
 
         /* ════════════════════════════════════════════
            RENDER: DATE BAR
@@ -742,9 +879,8 @@
         }
 
         /* ════════════════════════════════════════════
-           RENDER: SCHEDULE TAB
+           RENDER: SCHEDULE TAB 
         ════════════════════════════════════════════ */
-        // Schedule state (not persisted — generated on demand)
         let schedState = { juzDone: 15, pagesPerDay: 1, startDayIdx: 0 };
 
         function renderSchedule(container) {
@@ -764,7 +900,7 @@
                     </div>
                     <div class="sched-field">
                         <label>${t('schedPagesPerDay')}</label>
-                        <input type="number" id="schedPPDInput" min="1" max="10" value="${schedState.pagesPerDay}" style="width:100%;">
+                        <input type="number" step="0.5" id="schedPPDInput" min="0.5" max="10" value="${schedState.pagesPerDay}" style="width:100%;">
                     </div>
                     <div class="sched-field">
                         <label>${t('schedStartDay')}</label>
@@ -780,29 +916,19 @@
             </div>
             <div id="schedOutput"></div>`;
 
-            // If we have a previous schedule, re-render it
             if (schedState.generated) buildScheduleTable(document.getElementById('schedOutput'));
         }
 
         function buildScheduleTable(output) {
             const isAr = state.lang === 'ar';
             const juzDone = schedState.juzDone;
-            const ppd     = schedState.pagesPerDay;   // new pages per day
+            const ppd     = schedState.pagesPerDay;   
             const startIdx = schedState.startDayIdx;
             const days     = t('schedDayNames');
-            const PAGES_PER_JUZ = 20; // standard: 1 Juz = 20 pages (Mushaf Madinah)
+            const PAGES_PER_JUZ = 20;
 
-            // Far revision: 2 juz per day, cycling through memorized juz
-            // Day 0 starts from juz 1 & 2, day 1 from juz 3 & 4, etc.
-            // If juzDone < 2, we can't do far revision
             const canFarRev = juzDone >= 2;
-
-            // Near revision: 20 pages preceding the current new page
-            // New page for day d = (startingPage + d*ppd) to (startingPage + (d+1)*ppd - 1)
-            // where startingPage = juzDone * PAGES_PER_JUZ + 1
             const startPage = juzDone * PAGES_PER_JUZ + 1;
-
-            // Next week's 7 pages (for weekly prep): pages starting from startPage + 7*ppd
             const nextWeekStart = startPage + 7 * ppd;
 
             let rows = '';
@@ -810,21 +936,32 @@
                 const dayIdx = (startIdx + d) % 7;
                 const dayName = days[dayIdx];
 
-                // New memorization: pages for this day
                 const newPageStart = startPage + d * ppd;
                 const newPageEnd   = newPageStart + ppd - 1;
-                const newPageStr   = ppd === 1
-                    ? `${isAr ? 'ص' : 'p.'} ${toArabicNum(newPageStart)}`
-                    : `${isAr ? 'ص' : 'pp.'} ${toArabicNum(newPageStart)}–${toArabicNum(newPageEnd)}`;
+                let newPageStr = '';
+                
+                if (ppd % 1 === 0) {
+                    newPageStr = ppd === 1
+                        ? `${isAr ? 'ص' : 'p.'} ${toArabicNum(newPageStart)}`
+                        : `${isAr ? 'ص' : 'pp.'} ${toArabicNum(newPageStart)}–${toArabicNum(newPageEnd)}`;
+                } else {
+                    const wholePage = Math.floor(newPageStart);
+                    const isTop = (newPageStart % 1 === 0);
+                    const partStr = isTop ? (isAr ? 'أعلى' : 'Top') : (isAr ? 'أسفل' : 'Bottom');
+                    
+                    if (ppd === 0.5) {
+                        newPageStr = `${isAr ? 'ص' : 'p.'} ${toArabicNum(wholePage)} (${partStr})`;
+                    } else {
+                        newPageStr = `${isAr ? 'ص' : 'pp.'} ${toArabicNum(newPageStart)}–${toArabicNum(newPageEnd)}`;
+                    }
+                }
 
-                // Near revision: 20 pages before the new page
-                const nearStart = Math.max(1, newPageStart - 20);
-                const nearEnd   = newPageStart - 1;
+                const nearStart = Math.floor(Math.max(1, newPageStart - 20));
+                const nearEnd   = Math.floor(newPageStart - 0.5);
                 const nearStr   = nearStart > 0 && nearEnd >= nearStart
                     ? `${isAr ? 'ص' : 'pp.'} ${toArabicNum(nearStart)}–${toArabicNum(nearEnd)}`
                     : (isAr ? '—' : '—');
 
-                // Far revision: 2 juz per day (juz index cycles)
                 let farStr = '—';
                 if (canFarRev) {
                     const farJuz1 = ((d * 2) % juzDone) + 1;
@@ -834,13 +971,20 @@
                         : `${t('schedJuz')} ${toArabicNum(farJuz1)} & ${toArabicNum(farJuz2)}`;
                 }
 
-                // Preparation
-                const prepNextPage = newPageStart + ppd; // tomorrow's page
-                const prepPreStr  = newPageStr;           // today's page, 15min before
-                const prepNightStr = `${isAr ? 'ص' : 'p.'} ${toArabicNum(prepNextPage)}`;
-                const prepWeeklyStr = `${isAr ? 'ص' : 'pp.'} ${toArabicNum(nextWeekStart)}–${toArabicNum(nextWeekStart + 7*ppd - 1)}`;
+                const prepNextPage = newPageStart + ppd;
+                const prepPreStr  = newPageStr; 
+                let prepNightStr = '';
+                
+                if (ppd === 0.5) {
+                    const nWhole = Math.floor(prepNextPage);
+                    const nIsTop = (prepNextPage % 1 === 0);
+                    const nPartStr = nIsTop ? (isAr ? 'أعلى' : 'Top') : (isAr ? 'أسفل' : 'Bottom');
+                    prepNightStr = `${isAr ? 'ص' : 'p.'} ${toArabicNum(nWhole)} (${nPartStr})`;
+                } else {
+                    prepNightStr = `${isAr ? 'ص' : 'p.'} ${toArabicNum(prepNextPage)}`;
+                }
 
-                // Reading
+                const prepWeeklyStr = `${isAr ? 'ص' : 'pp.'} ${toArabicNum(Math.floor(nextWeekStart))}–${toArabicNum(Math.floor(nextWeekStart + 7*ppd - 1))}`;
                 const readStr = isAr ? '٤٠ صفحة' : '40 pages';
 
                 rows += `<tr>
@@ -900,10 +1044,10 @@
 
         function generateSchedule() {
             const juz = parseInt(document.getElementById('schedJuzInput').value);
-            const ppd = parseInt(document.getElementById('schedPPDInput').value);
+            const ppd = parseFloat(document.getElementById('schedPPDInput').value); 
             const day = parseInt(document.getElementById('schedDayInput').value);
             if (isNaN(juz) || juz < 0 || juz > 29) return showToast(state.lang === 'ar' ? 'أدخل عدد أجزاء صحيحاً (0-29)' : 'Enter a valid Juz count (0-29)');
-            if (isNaN(ppd) || ppd < 1 || ppd > 10) return showToast(state.lang === 'ar' ? 'أدخل عدد صفحات يومي صحيح (1-10)' : 'Enter valid daily pages (1-10)');
+            if (isNaN(ppd) || ppd < 0.5 || ppd > 10) return showToast(state.lang === 'ar' ? 'أدخل عدد صفحات يومي صحيح' : 'Enter valid daily pages');
             schedState = { juzDone: juz, pagesPerDay: ppd, startDayIdx: day, generated: true };
             buildScheduleTable(document.getElementById('schedOutput'));
         }
@@ -914,7 +1058,7 @@
         }
 
         /* ════════════════════════════════════════════
-           RENDER: PLAN TAB
+           RENDER: PLAN TAB 
         ════════════════════════════════════════════ */
         function renderPlan(container) {
             const todayStr = getTodayStr();
@@ -936,31 +1080,30 @@
                 if (state.plan.recentHizbs.length === 0) {
                     html += `<p style="color:var(--text-muted);font-size:14px;">-</p>`;
                 }
-                state.plan.recentHizbs.forEach(h => {
-                    const qs             = state.quarters.filter(q => q.hizb === h);
-                    const latestDate     = Math.max(...qs.map(q => q.lastRevised || 0));
-                    const doneCount      = qs.filter(q => q.lastRevised && new Date(q.lastRevised).toISOString().split('T')[0] === todayStr).length;
-                    const allDoneToday   = doneCount === 4;
-                    html += `<div class="plan-item" data-action="openHizb" data-hizb="${h}"
-                        style="cursor:pointer;transition:background .2s,border-color .2s;${allDoneToday ? 'background:#ECFDF5;border-color:rgba(5,150,105,0.4);' : ''}">
-                        <div>
-                            <span class="hizb-num" style="${allDoneToday ? 'color:var(--primary);' : ''}">${t('hizb')} ${toArabicNum(h)}</span>
-                            <div style="display:flex;gap:6px;margin-top:6px;">
-                                ${qs.map(q => {
-                                    const doneToday = q.lastRevised && new Date(q.lastRevised).toISOString().split('T')[0] === todayStr;
-                                    return `<span style="width:12px;height:12px;border-radius:50%;border:1.5px solid ${doneToday ? 'var(--primary)' : 'var(--border)'};background:${doneToday ? 'var(--primary)' : 'transparent'};display:inline-block;transition:background .2s;"></span>`;
-                                }).join('')}
+                state.plan.recentHizbs.forEach((h, idx) => {
+                    const qs           = state.quarters.filter(q => q.hizb === h);
+                    const doneCount    = qs.filter(q => q.lastRevised && new Date(q.lastRevised).toISOString().split('T')[0] === todayStr).length;
+                    const allDoneToday = doneCount === 4;
+                    html += `<div class="plan-item" style="transition:background .2s,border-color .2s;${allDoneToday ? 'background:#ECFDF5;border-color:rgba(5,150,105,0.4);' : ''}">
+                        <div style="flex:1;display:flex;justify-content:space-between;align-items:center;cursor:pointer;" data-action="openHizb" data-hizb="${h}">
+                            <div>
+                                <span class="hizb-num" style="${allDoneToday ? 'color:var(--primary);' : ''}">${t('hizb')} ${toArabicNum(h)}</span>
+                                <div style="display:flex;gap:6px;margin-top:6px;">
+                                    ${qs.map(q => {
+                                        const doneToday = q.lastRevised && new Date(q.lastRevised).toISOString().split('T')[0] === todayStr;
+                                        return `<span style="width:12px;height:12px;border-radius:50%;border:1.5px solid ${doneToday ? 'var(--primary)' : 'var(--border)'};background:${doneToday ? 'var(--primary)' : 'transparent'};display:inline-block;transition:background .2s;"></span>`;
+                                    }).join('')}
+                                </div>
+                            </div>
+                            <div style="text-align:center;margin:0 12px;">
+                                ${allDoneToday
+                                    ? `<span style="color:var(--primary);font-size:13px;font-weight:700;">✓ ${state.lang === 'en' ? 'Done' : 'تمت المراجعة'}</span>`
+                                    : `<span style="color:var(--text-muted);font-size:11px;display:block;">${doneCount}/4</span>
+                                       <span style="color:var(--text-muted);font-size:10px;">${state.lang === 'en' ? 'tap to revise' : 'اضغط للمراجعة'}</span>`
+                                }
                             </div>
                         </div>
-                        <div style="text-align:left;">
-                            ${allDoneToday
-                                ? `<span style="color:var(--primary);font-size:13px;font-weight:700;">✓ ${state.lang === 'en' ? 'Done' : 'تمت المراجعة'}</span>`
-                                : `<div style="text-align:center;">
-                                       <span style="color:var(--text-muted);font-size:11px;display:block;">${doneCount}/4</span>
-                                       <span style="color:var(--text-muted);font-size:10px;">${state.lang === 'en' ? 'tap to revise' : 'اضغط للمراجعة'}</span>
-                                   </div>`
-                            }
-                        </div>
+                        <button class="btn-icon" data-action="promptReplace" data-type="recent" data-idx="${idx}" data-old="${h}" title="${state.lang === 'ar' ? 'استبدال' : 'Replace'}" style="font-size:16px;color:var(--text-muted);flex-shrink:0;">🔄</button>
                     </div>`;
                 });
             }
@@ -972,25 +1115,67 @@
                 }
                 state.plan.seqHizbs.forEach((h, idx) => {
                     const isDone = state.plan.seqDone[idx];
-                    html += `<div class="plan-item" data-action="seqDone" data-idx="${idx}" style="cursor:pointer;transition:background .2s,border-color .2s;${isDone ? 'background:#ECFDF5;border-color:rgba(5,150,105,0.4);' : ''}">
-                        <span class="hizb-num" style="${isDone ? 'color:var(--primary);' : ''}">${t('hizb')} ${toArabicNum(h)}</span>
-                        ${isDone
-                            ? `<span style="color:var(--primary);font-size:13px;font-weight:700;">✓ ${state.lang === 'en' ? 'Done' : 'تمت المراجعة'}</span>`
-                            : `<span style="color:var(--text-muted);font-size:20px;">○</span>`
-                        }
+                    html += `<div class="plan-item" style="transition:background .2s,border-color .2s;${isDone ? 'background:#ECFDF5;border-color:rgba(5,150,105,0.4);' : ''}">
+                        <div style="flex:1;display:flex;justify-content:space-between;align-items:center;cursor:pointer;" data-action="seqDone" data-idx="${idx}">
+                            <span class="hizb-num" style="${isDone ? 'color:var(--primary);' : ''}">${t('hizb')} ${toArabicNum(h)}</span>
+                            <div style="margin:0 12px;">
+                                ${isDone
+                                    ? `<span style="color:var(--primary);font-size:13px;font-weight:700;">✓ ${state.lang === 'en' ? 'Done' : 'تمت المراجعة'}</span>`
+                                    : `<span style="color:var(--text-muted);font-size:20px;">○</span>`
+                                }
+                            </div>
+                        </div>
+                        <button class="btn-icon" data-action="promptReplace" data-type="seq" data-idx="${idx}" data-old="${h}" title="${state.lang === 'ar' ? 'استبدال' : 'Replace'}" style="font-size:16px;color:var(--text-muted);flex-shrink:0;">🔄</button>
                     </div>`;
                 });
             }
 
-            if (state.planConfig.recent === 0 && state.planConfig.seq === 0) {
-                html += `<p style="text-align:center;color:var(--text-muted);margin-top:30px;font-size:14px;">${state.lang === 'en' ? 'Daily plan is disabled in settings.' : 'خطة اليوم معطلة في الإعدادات.'}</p>`;
+            if (state.plan.manualHizbs && state.plan.manualHizbs.length > 0) {
+                html += `<h2 class="section-title">${t('manualSection')}</h2>`;
+                state.plan.manualHizbs.forEach((h, idx) => {
+                    const isDone = state.plan.manualDone[idx];
+                    html += `<div class="plan-item" style="transition:background .2s,border-color .2s;${isDone ? 'background:#ECFDF5;border-color:rgba(5,150,105,0.4);' : ''}">
+                        <div style="flex:1;display:flex;justify-content:space-between;align-items:center;cursor:pointer;" data-action="manualDone" data-idx="${idx}">
+                            <span class="hizb-num" style="${isDone ? 'color:var(--primary);' : ''}">${t('hizb')} ${toArabicNum(h)}</span>
+                            <div style="margin:0 12px;">
+                                ${isDone
+                                    ? `<span style="color:var(--primary);font-size:13px;font-weight:700;">✓ ${state.lang === 'en' ? 'Done' : 'تمت المراجعة'}</span>`
+                                    : `<span style="color:var(--text-muted);font-size:20px;">○</span>`
+                                }
+                            </div>
+                        </div>
+                        <button class="btn-icon" data-action="removeManual" data-idx="${idx}" title="${state.lang === 'ar' ? 'إزالة' : 'Remove'}" style="font-size:16px;color:var(--danger);flex-shrink:0;">✖</button>
+                    </div>`;
+                });
             }
 
+            const dailyReadCount = state.planConfig.dailyRead || 1;
+            const readTargets = [];
+            let found = 0, j = 0;
+            while (found < dailyReadCount && j < 30) {
+                const isReadToday = state.tilawah[j] > 0 && new Date(state.tilawah[j]).toISOString().split('T')[0] === todayStr;
+                if (state.tilawah[j] === 0 || isReadToday) { readTargets.push(j); found++; }
+                j++;
+            }
+            if (readTargets.length > 0) {
+                html += `<h2 class="section-title">${t('tilawah')}</h2>`;
+                readTargets.forEach(idx => {
+                    const isRead = state.tilawah[idx] > 0;
+                    html += `<div class="plan-item" data-action="toggleTilawah" data-idx="${idx}" style="cursor:pointer;transition:background .2s,border-color .2s;${isRead ? 'background:#ECFDF5;border-color:rgba(5,150,105,0.4);' : ''}">
+                        <span class="hizb-num" style="${isRead ? 'color:var(--primary);' : ''}">${t('juz')} ${toArabicNum(idx + 1)}</span>
+                        ${isRead ? `<span style="color:var(--primary);font-size:13px;font-weight:700;">✓ ${state.lang === 'en' ? 'Done' : 'تمت القراءة'}</span>` : `<span style="color:var(--text-muted);font-size:20px;">○</span>`}
+                    </div>`;
+                });
+            }
+
+            if (state.planConfig.recent === 0 && state.planConfig.seq === 0 && readTargets.length === 0 && (!state.plan.manualHizbs || state.plan.manualHizbs.length === 0)) {
+                html += `<p style="text-align:center;color:var(--text-muted);margin-top:30px;font-size:14px;">${state.lang === 'en' ? 'Daily plan is empty.' : 'خطة اليوم فارغة.'}</p>`;
+            }
             container.innerHTML = html;
         }
 
         /* ════════════════════════════════════════════
-           RENDER: HIZB GRID  (FIX #10: data-* + event delegation)
+           RENDER: HIZB GRID 
         ════════════════════════════════════════════ */
         function renderGrid(container, filterType) {
             let html = '';
@@ -1036,20 +1221,58 @@
 
             html += '<div class="grid">';
             let count = 0;
+            const MAX_REV = 10;
+
             for (let i = 1; i <= 60; i++) {
-                const qs       = state.quarters.filter(q => q.hizb === i);
-                const overdue  = isHizbOverdue(i);
+                const qs      = state.quarters.filter(q => q.hizb === i);
+                const overdue = isHizbOverdue(i);
                 if (filterType === 'overdue' && !overdue) continue;
                 count++;
-                let cls = qs.filter(q => q.revCount > 0).length === 4 ? 'memorized' : '';
-                if (overdue) cls = 'overdue';
+
+                const startedQs = qs.filter(q => q.revCount > 0);
+                const avgRev    = startedQs.length > 0
+                    ? startedQs.reduce((s,q) => s + q.revCount, 0) / startedQs.length : 0;
+                const strength  = Math.min(avgRev / MAX_REV, 1);
+
+                // Ring glow: border thickens and glows green as revisions grow
+                // Badge shows rounded avg count
+                let cardStyle = '';
+                let numStyle  = '';
+                let badge     = '';
+
+                if (!overdue && avgRev > 0) {
+                    const bw  = (1 + strength * 3).toFixed(1);         // border 1px→4px
+                    const sat = Math.round(60 + strength * 35);        // saturation 60→95%
+                    const lit = Math.round(38 - strength * 12);        // lightness 38→26%
+                    const glow = strength > 0.3
+                        ? `box-shadow: 0 0 0 ${(strength * 4).toFixed(1)}px rgba(5,150,105,${(strength * 0.22).toFixed(2)}), var(--shadow);`
+                        : '';
+                    cardStyle = `border: ${bw}px solid hsl(160,${sat}%,${lit}%); ${glow}`;
+                    numStyle  = `color: hsl(160,${sat}%,${lit}%);`;
+
+                    // Small pill badge: ×N revisions
+                    const badgeAlpha = (0.12 + strength * 0.18).toFixed(2);
+                    const badgeText  = `×${Math.round(avgRev)}`;
+                    badge = `<span style="
+                        position:absolute; top:5px; ${state.lang==='ar'?'left':'right'}:5px;
+                        font-size:9px; font-weight:800; line-height:1;
+                        background: hsl(160,${sat}%,${lit}%);
+                        color:#fff; border-radius:4px; padding:2px 4px; letter-spacing:0.3px;
+                    ">${badgeText}</span>`;
+                }
+
+                let cls = '';
+                if (overdue) { cls = 'overdue'; cardStyle = ''; numStyle = ''; badge = ''; }
                 if (isBulkMode && selectedHizbs.has(i)) cls += ' selected';
                 const latestDate = Math.max(...qs.map(q => q.lastRevised || 0));
-                html += `<div class="card ${cls}" data-action="${isBulkMode ? 'selectHizb' : 'openHizb'}" data-hizb="${i}">
+
+                html += `<div class="card ${cls}" data-action="${isBulkMode ? 'selectHizb' : 'openHizb'}" data-hizb="${i}" style="${cardStyle}">
+                    ${badge}
                     <span style="font-size:11px;color:var(--text-muted);margin-bottom:-2px;">${t('hizb')}</span>
-                    <span class="hizb-num">${toArabicNum(i)}</span>
+                    <span class="hizb-num" style="${numStyle}">${toArabicNum(i)}</span>
                     ${latestDate > 0
-                        ? `<span style="font-size:10px;color:var(--secondary);font-weight:700;margin-top:2px;">${formatHijri(latestDate)}</span><span style="font-size:10px;color:var(--text-muted);margin-top:2px;">${formatDate(latestDate)}</span>`
+                        ? `<span style="font-size:10px;color:var(--secondary);font-weight:700;margin-top:2px;">${formatHijri(latestDate)}</span>
+                           <span style="font-size:10px;color:var(--text-muted);margin-top:2px;">${formatDate(latestDate)}</span>`
                         : `<span style="font-size:10px;color:var(--text-muted);margin-top:4px;">${t('never')}</span>`}
                     ${overdue ? `<span class="overdue-label">${t('overdueLabel')}</span>` : ''}
                 </div>`;
@@ -1080,23 +1303,60 @@
            RENDER: LISTENING
         ════════════════════════════════════════════ */
         function renderListening(container) {
-            let html = '<div class="grid">';
+            const isAr = state.lang === 'ar';
+            let playerBar = '';
+            if (playingHizb !== null && audioQueue.length > 0) {
+                const pct     = Math.round((currentAyahIndex / audioQueue.length) * 100);
+                const entry   = audioQueue[currentAyahIndex];
+                const surah   = entry ? (isAr ? entry.surahAr : entry.surahEn) : '';
+                const ayahNum = entry ? toArabicNum(entry.ayah) : '';
+
+                // In RTL: ⏭ goes on the right (next), ⏮ on the left (prev) — same physical layout as LTR
+                playerBar = `
+                <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:16px;box-shadow:var(--shadow);">
+                    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px;">
+                        <span style="font-weight:700;font-size:15px;color:var(--text);">${t('hizb')} ${toArabicNum(playingHizb)}</span>
+                        <span style="font-size:12px;color:var(--text-muted);">${toArabicNum(currentAyahIndex + 1)} / ${toArabicNum(audioQueue.length)}</span>
+                    </div>
+                    ${surah ? `<div style="font-size:12px;color:var(--secondary);font-weight:600;margin-bottom:10px;">${surah}${ayahNum ? ' : ' + ayahNum : ''}</div>` : '<div style="margin-bottom:10px;"></div>'}
+                    <div style="background:var(--border);height:6px;border-radius:3px;overflow:hidden;margin-bottom:12px;">
+                        <div style="background:var(--secondary);height:100%;width:${pct}%;border-radius:3px;transition:width .3s;"></div>
+                    </div>
+                    <div style="display:flex;justify-content:center;gap:16px;align-items:center;direction:ltr;">
+                        <button data-action="seekAudio" data-dir="${isAr ? 1 : -1}" style="background:var(--bg);border:1px solid var(--border);border-radius:50%;width:38px;height:38px;font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;" title="${isAr ? 'الآية التالية' : 'Previous ayah'}">⏮</button>
+                        <button data-action="playAudio" data-hizb="${playingHizb}" style="background:var(--secondary);border:none;border-radius:50%;width:52px;height:52px;font-size:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;">
+                            ${isPlaying ? '⏸' : '▶'}
+                        </button>
+                        <button data-action="seekAudio" data-dir="${isAr ? -1 : 1}" style="background:var(--bg);border:1px solid var(--border);border-radius:50%;width:38px;height:38px;font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;" title="${isAr ? 'الآية السابقة' : 'Next ayah'}">⏭</button>
+                    </div>
+                </div>`;
+            }
+
+            let html = playerBar + '<div class="grid">';
             state.listening.forEach(l => {
-                const playing = (playingHizb === l.hizb && isPlaying);
-                html += `<div class="card ${l.listened ? 'listened' : ''}" style="height:120px;padding:0;overflow:hidden;">
-                    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;cursor:pointer;" data-action="toggleListening" data-hizb="${l.hizb}">
+                const isThisPlaying = (playingHizb === l.hizb && isPlaying);
+                const isThisLoaded  = (playingHizb === l.hizb && audioQueue.length > 0);
+                const pct = isThisLoaded ? Math.round((currentAyahIndex / audioQueue.length) * 100) : 0;
+
+                html += `<div class="card ${l.listened ? 'listened' : ''}" style="height:130px;padding:0;overflow:hidden;position:relative;">
+                    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;cursor:pointer;padding:8px 4px;" data-action="toggleListening" data-hizb="${l.hizb}">
                         <span style="font-size:11px;color:var(--text-muted);margin-bottom:-2px;">${t('hizb')}</span>
                         <span class="hizb-num">${toArabicNum(l.hizb)}</span>
-                        ${l.listened ? `<span style="font-size:11px;color:var(--secondary);font-weight:700;margin-top:4px;">${t('listenedText')} ✓</span>` : ''}
+                        ${l.listened ? `<span style="font-size:10px;color:var(--secondary);font-weight:700;margin-top:3px;">${t('listenedText')} ✓</span>` : ''}
+                        ${isThisLoaded && !l.listened ? `<span style="font-size:9px;color:var(--text-muted);margin-top:2px;">${toArabicNum(pct)}%</span>` : ''}
                     </div>
-                    <button class="btn-icon" style="width:100%;border-top:1px solid #eee;padding:8px 0;border-radius:0;background:transparent;" data-action="playAudio" data-hizb="${l.hizb}" id="audioBtn_${l.hizb}">${playing ? '⏸️' : '▶️'}</button>
+                    ${isThisLoaded ? `<div style="height:3px;background:var(--border);width:100%;"><div style="background:var(--secondary);height:100%;width:${pct}%;transition:width .3s;"></div></div>` : ''}
+                    <button style="width:100%;border-top:1px solid #eee;padding:7px 0;border-radius:0;background:transparent;border-left:none;border-right:none;border-bottom:none;cursor:pointer;font-size:18px;"
+                        data-action="playAudio" data-hizb="${l.hizb}" id="audioBtn_${l.hizb}">
+                        ${isThisPlaying ? '⏸' : (isThisLoaded ? '▶ Resume' : '▶️')}
+                    </button>
                 </div>`;
             });
             container.innerHTML = html + '</div>';
         }
 
         /* ════════════════════════════════════════════
-           EVENT DELEGATION  (FIX #10)
+           EVENT DELEGATION 
         ════════════════════════════════════════════ */
         document.getElementById('mainContent').addEventListener('click', e => {
             const el = e.target.closest('[data-action]');
@@ -1108,11 +1368,27 @@
             if (action === 'openHizb')        openHizbModal(hizb);
             else if (action === 'selectHizb') { toggleHizbSelection(hizb); renderApp(); }
             else if (action === 'seqDone')    { markSeqDone(idx); }
+            else if (action === 'manualDone') { markManualDone(idx); }
+            else if (action === 'removeManual') {
+                state.plan.manualHizbs.splice(idx, 1);
+                state.plan.manualDone.splice(idx, 1);
+                saveState(); renderApp();
+            }
+            else if (action === 'promptReplace') {
+                const oldHizb = el.dataset.old;
+                document.getElementById('replaceModalTitle').innerText = (state.lang === 'ar' ? 'استبدال الحزب ' : 'Replace Hizb ') + oldHizb;
+                document.getElementById('replaceType').value = el.dataset.type;
+                document.getElementById('replaceIdx').value  = el.dataset.idx;
+                document.getElementById('replaceInput').value = '';
+                document.getElementById('replaceExecBtn').innerText = state.lang === 'ar' ? 'استبدال' : 'Replace';
+                document.getElementById('replaceModal').style.display = 'flex';
+            }
             else if (action === 'toggleBulk') toggleBulkMode();
-            else if (action === 'toggleTilawah') toggleTilawah(idx);
+            else if (action === 'toggleTilawah') { toggleTilawah(idx); renderApp(); }
             else if (action === 'resetTilawah')  resetTilawah();
             else if (action === 'toggleListening') { toggleListening(hizb); }
-            else if (action === 'playAudio')  playHizbAudio(hizb);
+            else if (action === 'playAudio')   playHizbAudio(hizb);
+            else if (action === 'seekAudio')   seekAudio(parseInt(el.dataset.dir));
             else if (action === 'generateSchedule') generateSchedule();
             else if (action === 'resetSchedule')    resetSchedule();
         });
@@ -1120,9 +1396,61 @@
         /* ════════════════════════════════════════════
            ACTIONS
         ════════════════════════════════════════════ */
+        // Save originals before stamping so unstamp can perfectly restore
+        let _stampSnapshot = {}; // { hizb: [{id, revCount, lastRevised}] }
+
+        function stampHizbRevision(hizb) {
+            const now = Date.now();
+            const snapshot = [];
+            state.quarters.filter(q => q.hizb === hizb && q.revCount > 0).forEach(q => {
+                snapshot.push({ id: q.id, revCount: q.revCount, lastRevised: q.lastRevised });
+                q.revCount    = Math.min(q.revCount + 1, 11);
+                q.lastRevised = now;
+            });
+            _stampSnapshot[hizb] = snapshot;
+        }
+
+        function unstampHizbRevision(hizb) {
+            const snapshot = _stampSnapshot[hizb];
+            if (snapshot) {
+                // Restore exact pre-stamp values
+                snapshot.forEach(({ id, revCount, lastRevised }) => {
+                    const q = state.quarters.find(x => x.id === id);
+                    if (q) { q.revCount = revCount; q.lastRevised = lastRevised; }
+                });
+                delete _stampSnapshot[hizb];
+            } else {
+                // Fallback if snapshot missing (e.g. after page reload): just decrement
+                state.quarters.filter(q => q.hizb === hizb && q.revCount > 1).forEach(q => {
+                    q.revCount--;
+                });
+            }
+        }
+
         function markSeqDone(index) {
-            state.plan.seqDone[index] = !state.plan.seqDone[index];
-            if (state.plan.seqDone[index]) recordRevisionToday();
+            const wasChecked = state.plan.seqDone[index];
+            state.plan.seqDone[index] = !wasChecked;
+            const hizb = state.plan.seqHizbs[index];
+            if (!wasChecked) {
+                stampHizbRevision(hizb);
+                recordRevisionToday();
+            } else {
+                unstampHizbRevision(hizb);
+            }
+            saveState();
+            renderApp();
+        }
+
+        function markManualDone(index) {
+            const wasChecked = state.plan.manualDone[index];
+            state.plan.manualDone[index] = !wasChecked;
+            const hizb = state.plan.manualHizbs[index];
+            if (!wasChecked) {
+                stampHizbRevision(hizb);
+                recordRevisionToday();
+            } else {
+                unstampHizbRevision(hizb);
+            }
             saveState();
             renderApp();
         }
@@ -1144,7 +1472,6 @@
             selectedHizbs.has(hizb) ? selectedHizbs.delete(hizb) : selectedHizbs.add(hizb);
         }
 
-        // FIX #3: timezone-safe date, FIX #7: confirmation before bulk action
         async function bulkAction(type, dateVal = null) {
             if (selectedHizbs.size === 0) return;
             if (type === 'date' && !dateVal) return;
@@ -1152,7 +1479,6 @@
             const ok = await showConfirm(t('confirmBulk'));
             if (!ok) return;
 
-            // FIX #3: anchor to local noon to avoid UTC off-by-one
             const targetTime = type === 'today'
                 ? Date.now()
                 : new Date(dateVal + 'T12:00:00').getTime();
@@ -1165,22 +1491,29 @@
                 });
             });
 
-            if (type === 'today') recordRevisionToday(); // FIX #2
+            if (type === 'today') recordRevisionToday(); 
             saveState();
             toggleBulkMode();
             renderApp();
         }
 
         /* ════════════════════════════════════════════
-           HIZB MODAL
+           HIZB MODAL 
         ════════════════════════════════════════════ */
         function openHizbModal(hizb) {
             document.getElementById('modalTitle').innerText = `${t('hizb')} ${toArabicNum(hizb)}`;
             document.getElementById('modalNotesContainer').innerHTML =
                 `<textarea placeholder="${t('notesHolder')}" onchange="saveHizbNote(${hizb}, this.value)">${state.hizbNotes[hizb] || ''}</textarea>`;
 
-            const qs   = state.quarters.filter(q => q.hizb === hizb);
+            const qs    = state.quarters.filter(q => q.hizb === hizb);
             const names = t('quarterNames');
+
+            // Check plan membership
+            const inRecent = state.plan.recentHizbs.includes(hizb);
+            const inSeq    = state.plan.seqHizbs.includes(hizb);
+            const inManual = (state.plan.manualHizbs || []).includes(hizb);
+            const alreadyInPlan = inRecent || inSeq || inManual;
+
             let html = '';
             qs.forEach((q, idx) => {
                 html += `<div class="quarter-row">
@@ -1199,9 +1532,41 @@
                     </div>
                 </div>`;
             });
+
+            // "Mark all revised today" — only show for near revision hizbs
+            if (inRecent) {
+                const todayStr   = getTodayStr();
+                const allDone    = qs.every(q => q.lastRevised && new Date(q.lastRevised).toISOString().split('T')[0] === todayStr);
+                const btnLabel   = allDone
+                    ? (state.lang === 'ar' ? '✓ تمت مراجعة جميع الأرباع اليوم' : '✓ All quarters revised today')
+                    : (state.lang === 'ar' ? '✅ تسجيل مراجعة جميع الأرباع' : '✅ Mark all quarters revised');
+                html += `<button class="btn-primary" style="width:100%;margin-top:20px;font-weight:700;${allDone ? 'opacity:0.6;' : ''}"
+                    onclick="markAllQuartersRevised(${hizb})">${btnLabel}</button>`;
+            }
+
+            // "Add to plan" — only if not already in plan
+            if (!alreadyInPlan) {
+                html += `<button class="btn-outline" style="width:100%;margin-top:${inRecent ? '10px' : '20px'};font-weight:700;"
+                    onclick="addToDailyPlan(${hizb})">${t('manualAdd')}</button>`;
+            }
+
             document.getElementById('modalBody').innerHTML = html;
             document.getElementById('hizbModal').style.display = 'flex';
         }
+
+        window.markAllQuartersRevised = function(hizb) {
+            const now      = Date.now();
+            const todayStr = getTodayStr();
+            state.quarters.filter(q => q.hizb === hizb).forEach(q => {
+                if (q.revCount === 0) q.revCount = 1;
+                else if (q.revCount < 11) q.revCount++;
+                q.lastRevised = now;
+            });
+            recordRevisionToday();
+            saveState();
+            openHizbModal(hizb); // refresh modal
+            renderApp();
+        };
 
         function updateQuarter(id, change) {
             const q        = state.quarters.find(x => x.id === id);
@@ -1215,20 +1580,16 @@
             q.revCount = next;
 
             if (change > 0) {
-                // Incrementing: stamp now, record streak
                 q.lastRevised = Date.now();
                 recordRevisionToday();
             } else {
-                // Decrementing
                 if (next === 0) {
-                    q.lastRevised = 0; // fully unset
+                    q.lastRevised = 0; 
                 } else if (wasToday) {
-                    // Was stamped today — roll back to yesterday noon so dots un-fill
                     const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
                     yesterday.setHours(12, 0, 0, 0);
                     q.lastRevised = yesterday.getTime();
                 }
-                // if lastRevised was from a previous day, leave it untouched
             }
 
             saveState();
@@ -1239,10 +1600,8 @@
         function setQuarterDate(id, dateStr) {
             if (!dateStr) return;
             const q = state.quarters.find(x => x.id === id);
-            // FIX #3: timezone-safe parse
             q.lastRevised = new Date(dateStr + 'T12:00:00').getTime();
             if (q.revCount === 0) q.revCount = 1;
-            // NOTE: setting a past date deliberately does NOT record a streak day (FIX #2)
             saveState();
             openHizbModal(q.hizb);
             renderApp();
@@ -1256,10 +1615,8 @@
         function toggleTilawah(idx) {
             state.tilawah[idx] = state.tilawah[idx] > 0 ? 0 : Date.now();
             saveState();
-            renderApp();
         }
 
-        // FIX: native confirm() replaced with custom modal
         async function resetTilawah() {
             const ok = await showConfirm(t('confirmNewKhatma'));
             if (!ok) return;
@@ -1269,20 +1626,35 @@
         }
 
         /* ════════════════════════════════════════════
-           AUDIO  (FIX #8: meaningful error feedback)
+           AUDIO 
         ════════════════════════════════════════════ */
+        function saveAudioPos() {
+            state.lastAudioPos = { hizb: playingHizb, ayahIndex: currentAyahIndex };
+            saveState();
+        }
+
         function playHizbAudio(hizb) {
-            const btn = document.getElementById('audioBtn_' + hizb);
             if (playingHizb === hizb && isPlaying) {
-                currentAudio.pause(); isPlaying = false; if (btn) btn.innerText = '▶️';
+                currentAudio.pause();
+                isPlaying = false;
+                saveAudioPos();
+                renderListening(document.getElementById('mainContent'));
                 return;
             }
-            currentAudio.pause();
-            if (playingHizb && playingHizb !== hizb) {
-                const old = document.getElementById('audioBtn_' + playingHizb);
-                if (old) old.innerText = '▶️';
+            if (playingHizb === hizb && audioQueue.length > 0 && !isPlaying) {
+                isPlaying = true;
+                playNextAyah(currentAyahIndex);
+                return;
             }
-            if (btn) btn.innerText = '⏳';
+
+            currentAudio.pause();
+            playingHizb = hizb;
+            isPlaying   = false;
+            audioQueue  = [];
+            // Restore saved position if resuming same hizb from a previous session
+            const savedPos = state.lastAudioPos;
+            currentAyahIndex = (savedPos && savedPos.hizb === hizb) ? (savedPos.ayahIndex || 0) : 0;
+            renderListening(document.getElementById('mainContent'));
 
             const quarters = [1, 2, 3, 4].map(q => (hizb - 1) * 4 + q);
             Promise.all(
@@ -1292,37 +1664,64 @@
                 )
             ).then(results => {
                 audioQueue = [];
-                results.forEach(d => { if (d.data && d.data.ayahs) audioQueue.push(...d.data.ayahs.map(a => a.audio)); });
+                results.forEach(d => {
+                    if (d.data && d.data.ayahs) {
+                        d.data.ayahs.forEach(a => {
+                            audioQueue.push({
+                                url:     a.audio,
+                                ayah:    a.numberInSurah,
+                                surahAr: a.surah ? a.surah.name : '',
+                                surahEn: a.surah ? a.surah.englishName : ''
+                            });
+                        });
+                    }
+                });
                 if (audioQueue.length === 0) throw new Error('empty');
-                playingHizb = hizb; isPlaying = true;
-                playNextAyah(0);
+                // Clamp saved index in case queue length differs
+                if (currentAyahIndex >= audioQueue.length) currentAyahIndex = 0;
+                isPlaying = true;
+                playNextAyah(currentAyahIndex);
             }).catch(err => {
                 console.warn('Audio error:', err);
-                if (btn) btn.innerText = '▶️';
-                showToast(t('audioError')); // FIX #8: visible error
+                playingHizb = null; audioQueue = []; currentAyahIndex = 0;
+                showToast(t('audioError'));
+                renderListening(document.getElementById('mainContent'));
             });
         }
 
+        function seekAudio(dir) {
+            const next = currentAyahIndex + dir;
+            if (next < 0 || next >= audioQueue.length) return;
+            currentAudio.pause();
+            currentAyahIndex = next;
+            saveAudioPos();
+            if (isPlaying) playNextAyah(currentAyahIndex);
+            else renderListening(document.getElementById('mainContent'));
+        }
+
         function playNextAyah(index) {
-            const btn = document.getElementById('audioBtn_' + playingHizb);
             if (index >= audioQueue.length) {
-                isPlaying = false; playingHizb = null;
-                if (btn) btn.innerText = '▶️';
+                isPlaying = false;
+                currentAyahIndex = 0;
+                saveAudioPos();
+                renderListening(document.getElementById('mainContent'));
                 return;
             }
-            currentAudio.src = audioQueue[index];
+            currentAyahIndex = index;
+            currentAudio.src = audioQueue[index].url;
             currentAudio.play().catch(() => {});
-            if (btn) btn.innerText = '⏸️';
             currentAudio.onended = () => playNextAyah(index + 1);
+            renderListening(document.getElementById('mainContent'));
         }
 
         /* ════════════════════════════════════════════
-           SETTINGS
+           SETTINGS 
         ════════════════════════════════════════════ */
         function openSettings() {
             document.getElementById('freshnessInput').value = state.freshnessDays;
             document.getElementById('recentInput').value    = state.planConfig.recent;
             document.getElementById('seqInput').value       = state.planConfig.seq;
+            document.getElementById('dailyReadInput').value = state.planConfig.dailyRead;
             document.getElementById('settingsModal').style.display = 'flex';
         }
 
@@ -1330,9 +1729,13 @@
             const fVal = parseInt(document.getElementById('freshnessInput').value);
             const rVal = parseInt(document.getElementById('recentInput').value);
             const sVal = parseInt(document.getElementById('seqInput').value);
+            const dVal = parseInt(document.getElementById('dailyReadInput').value); 
+            
             state.freshnessDays      = isNaN(fVal) ? 30 : Math.min(Math.max(fVal, 7), 90);
             state.planConfig.recent  = isNaN(rVal) ? 2  : Math.min(Math.max(rVal, 0), 10);
             state.planConfig.seq     = isNaN(sVal) ? 4  : Math.min(Math.max(sVal, 0), 10);
+            state.planConfig.dailyRead = isNaN(dVal) ? 1 : Math.min(Math.max(dVal, 1), 30); 
+            
             saveState();
             closeModal('settingsModal');
             renderApp();
@@ -1345,14 +1748,14 @@
             state.quarters.forEach(q => {
                 if (q.hizb <= target && q.revCount === 0) { q.revCount = 1; q.lastRevised = now; }
             });
-            recordRevisionToday(); // FIX #2
+            recordRevisionToday(); 
             saveState();
             closeModal('settingsModal');
             renderApp();
         }
 
         /* ════════════════════════════════════════════
-           IMPORT / EXPORT  (FIX #6: proper error messages)
+           IMPORT / EXPORT 
         ════════════════════════════════════════════ */
         function exportData() {
             const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
@@ -1368,7 +1771,6 @@
             reader.onload = e => {
                 try {
                     const imp = JSON.parse(e.target.result);
-                    // FIX #6: validate that the file actually looks like our data
                     if (!imp.quarters || !Array.isArray(imp.quarters) || imp.quarters.length !== 240) {
                         throw new Error('invalid structure');
                     }
@@ -1378,11 +1780,10 @@
                     showToast(t('importSuccess'));
                 } catch (err) {
                     console.error('Import failed:', err);
-                    showToast(t('importError')); // FIX #6: meaningful message
+                    showToast(t('importError')); 
                 }
             };
             reader.readAsText(file);
-            // Reset input so same file can be re-imported
             event.target.value = '';
         }
 
@@ -1412,23 +1813,24 @@
             document.getElementById('exportBtn').innerText       = t('export');
             document.getElementById('importBtn').innerText       = t('import');
 
-            // Tabs
-            ['plan','overdue','tilawah','hifz','listening','schedule'].forEach(tab => {
-                const el = document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1));
-                if (el) el.innerText = t(tab);
+            // Bottom nav labels (i18n)
+            document.querySelectorAll('.nav-item[data-tab]').forEach(el => {
+                const label = el.querySelector('.nav-label');
+                if (label) label.innerText = t(el.dataset.tab);
             });
 
             // Settings labels
-            ['settingsTitle','settingsSaveBtn','setFreshness','setRecent','setSeq','quickSetupTitle','quickSetupDesc','quickSetupBtn'].forEach(id => {
+            ['settingsTitle','settingsSaveBtn','setFreshness','setRecent','setSeq', 'setDailyRead', 'quickSetupTitle','quickSetupDesc','quickSetupBtn'].forEach(id => {
                 const el = document.getElementById(id); if (el) el.innerText = t(id);
             });
             const dtEl = document.getElementById('dataTitle'); if (dtEl) dtEl.innerText = t('dataTitle');
+            const reBtn = document.getElementById('replaceExecBtn'); if (reBtn) reBtn.innerText = state.lang === 'ar' ? 'استبدال' : 'Replace';
 
             // Bulk bar
             document.getElementById('bulkTodayBtn').innerText = t('bulkToday');
             document.getElementById('bulkCancelBtn').innerText = t('bulkCancel');
 
-            // Tutorial (keep up to date in background)
+            // Tutorial
             document.getElementById('tutorialTitle').innerText    = t('tutTitle');
             document.getElementById('tutorialBody').innerHTML     = t('tutBody').replaceAll('{DAYS}', toArabicNum(state.freshnessDays));
             document.getElementById('tutorialCloseBtn').innerText = t('tutClose');
@@ -1448,19 +1850,43 @@
         }
 
         /* ════════════════════════════════════════════
-           TAB SWITCHING  (FIX #10: event delegation on tabs)
+           TAB SWITCHING  (click + swipe + keyboard)
         ════════════════════════════════════════════ */
-        document.querySelector('.tabs').addEventListener('click', e => {
-            const tab = e.target.closest('[data-tab]');
-            if (!tab) return;
-            currentTab = tab.dataset.tab;
+        const TAB_ORDER = ['plan','overdue','tilawah','hifz','listening','schedule'];
+
+        function switchTab(tabId) {
+            if (!TAB_ORDER.includes(tabId)) return;
+            currentTab = tabId;
             isBulkMode = false; selectedHizbs.clear();
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            tab.classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            const el = document.querySelector(`.nav-item[data-tab="${tabId}"]`);
+            if (el) el.classList.add('active');
             renderApp();
+        }
+
+        document.getElementById('bottomNav').addEventListener('click', e => {
+            const item = e.target.closest('[data-tab]');
+            if (item) switchTab(item.dataset.tab);
         });
 
-        // Close modals on overlay click
+        // Swipe left/right on main content to navigate tabs
+        let _touchStartX = 0, _touchStartY = 0;
+        document.getElementById('mainContent').addEventListener('touchstart', e => {
+            _touchStartX = e.touches[0].clientX;
+            _touchStartY = e.touches[0].clientY;
+        }, { passive: true });
+        document.getElementById('mainContent').addEventListener('touchend', e => {
+            const dx = e.changedTouches[0].clientX - _touchStartX;
+            const dy = e.changedTouches[0].clientY - _touchStartY;
+            if (Math.abs(dx) < 55 || Math.abs(dy) > Math.abs(dx) * 0.75) return;
+            const cur  = TAB_ORDER.indexOf(currentTab);
+            // Swipe right → go to previous tab, swipe left → go to next tab (physical, RTL-agnostic)
+            const next = dx > 0 ? TAB_ORDER[cur - 1] : TAB_ORDER[cur + 1];
+            if (next) switchTab(next);
+        }, { passive: true });
+
+        // Arrow keys removed — use swipe or bottom nav to switch tabs
+
         document.querySelectorAll('.modal-overlay').forEach(overlay => {
             overlay.addEventListener('click', e => {
                 if (e.target === overlay) {
@@ -1476,6 +1902,14 @@
         ════════════════════════════════════════════ */
         document.documentElement.lang = state.lang;
         document.documentElement.dir  = state.lang === 'ar' ? 'rtl' : 'ltr';
+
+        // Restore last audio position into runtime vars (queue is empty — will fetch on tap)
+        if (state.lastAudioPos && state.lastAudioPos.hizb) {
+            playingHizb      = state.lastAudioPos.hizb;
+            currentAyahIndex = state.lastAudioPos.ayahIndex || 0;
+            // audioQueue remains empty — card shows "▶ Resume" and player bar is hidden until tapped
+        }
+
         renderApp();
 
         if (!localStorage.getItem('rusookh_tutorial_seen')) {
@@ -1507,34 +1941,33 @@
         }
 
         function doResetAndExport() {
-            // Always export first
             exportData();
 
             const from = _resetFromHizb;
 
             if (from === 0) {
-                // Full reset — keep user name, lang, settings
                 state.quarters.forEach(q => { q.revCount = 0; q.lastRevised = 0; });
                 state.listening.forEach(l => { l.listened = false; });
                 state.tilawah = Array(30).fill(0);
                 state.hizbNotes = {};
-                state.plan = { date: '', seqHizbs: [], seqDone: [], recentHizbs: [] };
+                state.plan = { date: '', seqHizbs: [], seqDone: [], recentHizbs: [], manualHizbs: [], manualDone: [], lastSeqHizb: 0 };
             } else {
-                // Selective reset from hizb onwards
                 state.quarters.forEach(q => {
                     if (q.hizb >= from) { q.revCount = 0; q.lastRevised = 0; }
                 });
                 state.listening.forEach(l => {
                     if (l.hizb >= from) l.listened = false;
                 });
-                // Remove hizb notes for affected hizbs
                 Object.keys(state.hizbNotes).forEach(k => {
                     if (parseInt(k) >= from) delete state.hizbNotes[k];
                 });
-                // Trim plan
                 state.plan.seqHizbs  = state.plan.seqHizbs.filter(h => h < from);
                 state.plan.seqDone   = state.plan.seqDone.slice(0, state.plan.seqHizbs.length);
                 state.plan.recentHizbs = state.plan.recentHizbs.filter(h => h < from);
+                if (state.plan.manualHizbs) {
+                    state.plan.manualHizbs = state.plan.manualHizbs.filter(h => h < from);
+                    state.plan.manualDone  = state.plan.manualDone.slice(0, state.plan.manualHizbs.length);
+                }
             }
 
             saveState();
