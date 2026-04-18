@@ -1,7 +1,7 @@
 // FIX #12: bump this version string whenever you deploy an update.
 // The browser will detect a changed SW file, install the new worker,
 // and the activate handler will delete stale caches automatically.
-const CACHE_VERSION = 'v9';
+const CACHE_VERSION = 'v11';
 const CACHE_NAME    = `rusookh-cache-${CACHE_VERSION}`;
 
 const CORE_ASSETS = [
